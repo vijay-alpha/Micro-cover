@@ -31,7 +31,8 @@ MicroCover is a decentralized parametric micro-insurance protocol built on the *
 ## 📸 Submission Screenshots
 
 ### 1. Wallet Connected State
-![Wallet Connected State](./docs/screenshots/wallet-connected.png)
+<img width="1920" height="1089" alt="{EF0930AB-8390-4140-BFCA-85F2AEB8CE01}" src="https://github.com/user-attachments/assets/a872a324-9681-4ac9-a23a-2a89bef007b9" />
+
 *Shows truncated wallet address (`GABC...3XYZ`), avatar badge, active pulse indicator, and Disconnect button.*
 
 ### 2. XLM Balance Displayed
