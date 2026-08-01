@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
-import { Shield, Sparkles, Activity } from "lucide-react";
+import { Shield, Sparkles, Activity, Cpu, ExternalLink } from "lucide-react";
 import WalletConnect from "./WalletConnect";
+import { DEPLOYED_SOROBAN_CONTRACT_ID, STELLAR_EXPERT_TESTNET_CONTRACT_URL } from "@/lib/stellar";
 
 interface NavbarProps {
   walletAddress: string | null;
@@ -42,17 +43,31 @@ export default function Navbar({
           </div>
         </div>
 
-        {/* Center: Network Status Badge */}
-        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/80 border border-white/10 text-xs">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-          </span>
-          <span className="text-slate-300 font-mono">Stellar Testnet</span>
-          <span className="text-slate-600">|</span>
-          <span className="text-emerald-400 font-semibold flex items-center gap-1">
-            <Activity className="w-3 h-3 animate-pulse" /> Horizon Online
-          </span>
+        {/* Center: Network & Soroban Contract Badge */}
+        <div className="hidden lg:flex items-center gap-3">
+          <a
+            href={`${STELLAR_EXPERT_TESTNET_CONTRACT_URL}${DEPLOYED_SOROBAN_CONTRACT_ID}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-mono transition-colors"
+            title="View Deployed Soroban Smart Contract on Stellar Expert"
+          >
+            <Cpu className="w-3.5 h-3.5 text-purple-400" />
+            <span>Contract: {DEPLOYED_SOROBAN_CONTRACT_ID.slice(0, 6)}...{DEPLOYED_SOROBAN_CONTRACT_ID.slice(-4)}</span>
+            <ExternalLink className="w-3 h-3 text-purple-400" />
+          </a>
+
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/80 border border-white/10 text-xs">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+            </span>
+            <span className="text-slate-300 font-mono">Stellar Testnet</span>
+            <span className="text-slate-600">|</span>
+            <span className="text-emerald-400 font-semibold flex items-center gap-1">
+              <Activity className="w-3 h-3 animate-pulse" /> Horizon Online
+            </span>
+          </div>
         </div>
 
         {/* Right: Wallet Connect CTA */}

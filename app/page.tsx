@@ -20,9 +20,11 @@ import ProtocolStats from "@/components/ProtocolStats";
 import PolicyCard, { InsurancePolicy, SAMPLE_POLICIES } from "@/components/PolicyCard";
 import TransactionModal, { TxStatus } from "@/components/TransactionModal";
 import TransactionHistory, { TransactionRecord } from "@/components/TransactionHistory";
+import ContractEvents from "@/components/ContractEvents";
 import {
   fetchXlmBalance,
   payPolicyPremium,
+  CategorizedError,
 } from "@/lib/stellar";
 import {
   fetchWalletDataFromFirebase,
@@ -43,6 +45,7 @@ export default function Home() {
   const [txStatus, setTxStatus] = useState<TxStatus>("IDLE");
   const [txHash, setTxHash] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [categorizedError, setCategorizedError] = useState<CategorizedError | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Category Filter State
@@ -115,6 +118,7 @@ export default function Home() {
     setSelectedPolicy(policy);
     setTxHash(null);
     setErrorMessage(null);
+    setCategorizedError(null);
     setIsModalOpen(true);
 
     try {
@@ -125,7 +129,7 @@ export default function Home() {
       // Step 2: Awaiting Signature
       setTxStatus("AWAITING_SIGNATURE");
 
-      // Step 3: Execute Transaction through Freighter & Horizon
+      // Step 3: Execute Transaction through Freighter & Soroban Contract
       const result = await payPolicyPremium(
         walletAddress,
         policy.premiumXlm,
@@ -165,6 +169,9 @@ export default function Home() {
         setTxStatus("ERROR");
         const errTxt = result.error || "Transaction was rejected or failed on network.";
         setErrorMessage(errTxt);
+        if (result.categorizedError) {
+          setCategorizedError(result.categorizedError);
+        }
 
         // Record failed transaction entry
         const failedRecord: TransactionRecord = {
@@ -221,7 +228,7 @@ export default function Home() {
               {/* Badge */}
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/90 border border-cyan-500/40 text-cyan-300 text-xs font-bold tracking-wider uppercase shadow-[0_0_15px_rgba(0,243,255,0.2)]">
                 <Sparkles className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-                <span>PARAMETRIC MICRO-INSURANCE PROTOCOL • STELLAR TESTNET</span>
+                <span>LEVEL 2 • SOROBAN SMART CONTRACT PROTOCOL • STELLAR TESTNET</span>
               </div>
 
               <h1 className="font-space text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.08] text-white">
@@ -240,12 +247,12 @@ export default function Home() {
                   <span>Freighter Wallet Native</span>
                 </div>
                 <div className="px-3.5 py-2 rounded-xl bg-slate-900/80 border border-white/10 text-xs font-semibold text-slate-200 flex items-center gap-2 shadow-sm">
-                  <CheckCircle className="w-4 h-4 text-cyan-400" />
-                  <span>Instant Horizon Settlement</span>
+                  <Cpu className="w-4 h-4 text-purple-400" />
+                  <span>Soroban Smart Contract</span>
                 </div>
                 <div className="px-3.5 py-2 rounded-xl bg-slate-900/80 border border-white/10 text-xs font-semibold text-slate-200 flex items-center gap-2 shadow-sm">
-                  <Database className="w-4 h-4 text-purple-400" />
-                  <span>Firebase Wallet Sync</span>
+                  <CheckCircle className="w-4 h-4 text-cyan-400" />
+                  <span>3 Error Types Handled</span>
                 </div>
               </div>
             </div>
@@ -264,7 +271,7 @@ export default function Home() {
                     <span className="font-space font-bold text-sm text-white">Live Policy Vault</span>
                   </div>
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                    AUTOMATED
+                    SOROBAN LIVE
                   </span>
                 </div>
 
@@ -381,6 +388,9 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Level 2 Real-Time Soroban Contract Event Stream Component */}
+        <ContractEvents />
+
         {/* Active Policies & Transaction History Table */}
         <TransactionHistory
           records={txHistoryRecords}
@@ -446,13 +456,14 @@ export default function Home() {
         </section>
       </main>
 
-      {/* Transaction Feedback Modal */}
+      {/* Transaction Feedback Modal with 3 Error Types */}
       <TransactionModal
         isOpen={isModalOpen}
         status={txStatus}
         policy={selectedPolicy}
         txHash={txHash}
         errorMessage={errorMessage}
+        categorizedError={categorizedError}
         onClose={() => setIsModalOpen(false)}
         onRetry={() => selectedPolicy && handlePayPremium(selectedPolicy)}
       />
