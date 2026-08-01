@@ -44,7 +44,7 @@ MicroCover is a decentralized parametric micro-insurance protocol built on the *
 
 ### 4. Transaction Result Shown to User (Stellar Expert Explorer)
 <img width="1912" height="1035" alt="{F62422AB-191F-4739-8DAB-7DEE7840AC62}" src="https://github.com/user-attachments/assets/57b75772-5ba6-4b9d-9bb6-8c528fc66a66" />
-*Displays clickable link directing to `https://stellar.expert/explorer/testnet/tx/{txHash}` confirming the transaction on-chain.*
+
 
 ---
 
