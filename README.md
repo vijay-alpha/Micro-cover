@@ -39,7 +39,7 @@ MicroCover is a decentralized parametric micro-insurance protocol built on the *
 *Displays real-time XLM balance fetched from Horizon Testnet on an animated 3D glass card with refresh & faucet shortcuts.*
 
 ### 3. Successful Testnet Transaction
-![Successful Testnet Transaction](./docs/screenshots/transaction-success.png)
+<img width="1920" height="1034" alt="{0696B73D-601D-4912-BF44-AB462EC58768}" src="https://github.com/user-attachments/assets/2032f171-5de2-419d-a779-a9b43847136d" />
 *Shows the transaction feedback modal in Success state with checkmark celebration and full transaction hash.*
 
 ### 4. Transaction Result Shown to User (Stellar Expert Explorer)
