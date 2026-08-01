@@ -143,7 +143,7 @@ export default function Home() {
         // Record purchased policy ID
         setPurchasedPolicyIds((prev) => new Set(prev).add(policy.id));
 
-        // Create & Save Transaction History Record
+        // Create & Save Transaction History Record with explicit PAYMENT SUCCESS status
         const newRecord: TransactionRecord = {
           id: result.hash,
           policyTitle: policy.title,
@@ -151,7 +151,7 @@ export default function Home() {
           premiumXlm: policy.premiumXlm,
           txHash: result.hash,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ", " + new Date().toLocaleDateString(),
-          status: "ACTIVE",
+          status: "SUCCESS",
         };
 
         setTxHistoryRecords((prev) => [newRecord, ...prev]);
@@ -163,7 +163,22 @@ export default function Home() {
         loadBalance(walletAddress);
       } else {
         setTxStatus("ERROR");
-        setErrorMessage(result.error || "Transaction was rejected or failed on network.");
+        const errTxt = result.error || "Transaction was rejected or failed on network.";
+        setErrorMessage(errTxt);
+
+        // Record failed transaction entry
+        const failedRecord: TransactionRecord = {
+          id: `failed-${Date.now()}`,
+          policyTitle: policy.title,
+          policyCategory: policy.category,
+          premiumXlm: policy.premiumXlm,
+          txHash: "000000...FAILED",
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ", " + new Date().toLocaleDateString(),
+          status: "FAILED",
+        };
+
+        setTxHistoryRecords((prev) => [failedRecord, ...prev]);
+        saveWalletPurchaseToFirebase(walletAddress, failedRecord, policy.id);
       }
     } catch (err: any) {
       console.error("Payment execution error:", err);

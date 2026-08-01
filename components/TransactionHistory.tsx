@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { History, ExternalLink, ShieldCheck, Clock, Trash2, FileX } from "lucide-react";
+import { History, ExternalLink, ShieldCheck, Clock, Trash2, FileX, CheckCircle2, XCircle } from "lucide-react";
 
 export interface TransactionRecord {
   id: string;
@@ -11,7 +11,7 @@ export interface TransactionRecord {
   premiumXlm: string;
   txHash: string;
   timestamp: string;
-  status: "ACTIVE" | "EXPIRED";
+  status: "SUCCESS" | "FAILED" | "ACTIVE" | "EXPIRED";
 }
 
 interface TransactionHistoryProps {
@@ -78,76 +78,84 @@ export default function TransactionHistory({ records, walletAddress, onClearHist
                 <tr className="border-b border-white/10 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
                   <th className="pb-3 px-4">Cover Policy</th>
                   <th className="pb-3 px-4">Premium Paid</th>
-                  <th className="pb-3 px-4">Status</th>
+                  <th className="pb-3 px-4">Payment & Cover Status</th>
                   <th className="pb-3 px-4">Date & Time</th>
                   <th className="pb-3 px-4 text-right">Stellar Expert Explorer</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
                 <AnimatePresence>
-                  {records.map((record) => (
-                    <motion.tr
-                      key={record.id}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 10 }}
-                      className="hover:bg-white/5 transition-colors group"
-                    >
-                      {/* Policy Title */}
-                      <td className="py-4 px-4 font-bold text-white flex items-center gap-2.5">
-                        <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                          <ShieldCheck className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <span className="block text-sm text-white group-hover:text-cyan-300 transition-colors">
-                            {record.policyTitle}
-                          </span>
-                          <span className="text-[10px] text-slate-400 font-mono">
-                            Category: {record.policyCategory}
-                          </span>
-                        </div>
-                      </td>
+                  {records.map((record) => {
+                    const isSuccess = record.status === "SUCCESS" || record.status === "ACTIVE";
 
-                      {/* Premium Paid */}
-                      <td className="py-4 px-4 font-space font-extrabold text-cyan-300 text-sm">
-                        {record.premiumXlm} XLM
-                      </td>
+                    return (
+                      <motion.tr
+                        key={record.id}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 10 }}
+                        className="hover:bg-white/5 transition-colors group"
+                      >
+                        {/* Policy Title */}
+                        <td className="py-4 px-4 font-bold text-white flex items-center gap-2.5">
+                          <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                            <ShieldCheck className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <span className="block text-sm text-white group-hover:text-cyan-300 transition-colors">
+                              {record.policyTitle}
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-mono">
+                              Category: {record.policyCategory}
+                            </span>
+                          </div>
+                        </td>
 
-                      {/* Status Badge */}
-                      <td className="py-4 px-4">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-[0_0_12px_rgba(0,255,157,0.3)]">
-                          <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        {/* Premium Paid */}
+                        <td className="py-4 px-4 font-space font-extrabold text-cyan-300 text-sm">
+                          {record.premiumXlm} XLM
+                        </td>
+
+                        {/* Payment & Cover Status Badge */}
+                        <td className="py-4 px-4">
+                          {isSuccess ? (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-[0_0_12px_rgba(0,255,157,0.3)]">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                              PAYMENT SUCCESS (ACTIVE COVER)
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold bg-rose-500/20 text-rose-300 border border-rose-500/40 shadow-[0_0_12px_rgba(244,63,94,0.3)]">
+                              <XCircle className="w-3.5 h-3.5 text-rose-400" />
+                              PAYMENT FAILED
+                            </span>
+                          )}
+                        </td>
+
+                        {/* Timestamp */}
+                        <td className="py-4 px-4 text-slate-300 font-mono text-[11px]">
+                          <span className="flex items-center gap-1 text-slate-400">
+                            <Clock className="w-3.5 h-3.5" />
+                            {record.timestamp}
                           </span>
-                          ACTIVE COVER
-                        </span>
-                      </td>
+                        </td>
 
-                      {/* Timestamp */}
-                      <td className="py-4 px-4 text-slate-300 font-mono text-[11px]">
-                        <span className="flex items-center gap-1 text-slate-400">
-                          <Clock className="w-3.5 h-3.5" />
-                          {record.timestamp}
-                        </span>
-                      </td>
-
-                      {/* Stellar Expert Explorer Link */}
-                      <td className="py-4 px-4 text-right">
-                        <a
-                          href={`https://stellar.expert/explorer/testnet/tx/${record.txHash}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-bold transition-all hover:scale-105"
-                        >
-                          <span className="font-mono text-[11px]">
-                            {record.txHash.slice(0, 6)}...{record.txHash.slice(-6)}
-                          </span>
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
-                      </td>
-                    </motion.tr>
-                  ))}
+                        {/* Stellar Expert Explorer Link */}
+                        <td className="py-4 px-4 text-right">
+                          <a
+                            href={`https://stellar.expert/explorer/testnet/tx/${record.txHash}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-bold transition-all hover:scale-105"
+                          >
+                            <span className="font-mono text-[11px]">
+                              {record.txHash.slice(0, 6)}...{record.txHash.slice(-6)}
+                            </span>
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                        </td>
+                      </motion.tr>
+                    );
+                  })}
                 </AnimatePresence>
               </tbody>
             </table>
