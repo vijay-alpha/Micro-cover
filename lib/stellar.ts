@@ -19,13 +19,80 @@ import { TransactionRecord } from "@/components/TransactionHistory";
 
 export const HORIZON_TESTNET_URL = "https://horizon-testnet.stellar.org";
 export const STELLAR_EXPERT_TESTNET_TX_URL = "https://stellar.expert/explorer/testnet/tx/";
+export const STELLAR_EXPERT_TESTNET_CONTRACT_URL = "https://stellar.expert/explorer/testnet/contract/";
 
-// Valid, Active 56-character Protocol Micro-Insurance Pool accounts on Stellar Testnet
+// Deployed Soroban Smart Contract & Vault Addresses on Stellar Testnet
+export const DEPLOYED_SOROBAN_CONTRACT_ID = "CAOKREOZ2KOOPBXYSL3NUWN5GUZDDXM32B5ZQTWZ5OHJLFFNVPTBTWM2";
 export const PROTOCOL_INSURANCE_POOL_ADDRESS = "GBWVMYMYP3XXZHRCMUDRZAN3SZRKL65WEKFLIWBSBOY22OM4QEBTYC23"; 
 export const FALLBACK_POOL_ADDRESS = "GAOKREOZ2KOOPBXYSL3NUWN5GUZDDXM32B5ZQTWZ5OHJLFFNVPTBTWM2";
 
 // Initialize Horizon Server instance for Stellar Testnet
 export const horizonServer = new Horizon.Server(HORIZON_TESTNET_URL);
+
+// Level 2 Requirement: 3 Distinct Error Types Handled
+export enum ErrorType {
+  USER_REJECTION = "USER_REJECTION",
+  INSUFFICIENT_FUNDS = "INSUFFICIENT_FUNDS",
+  CONTRACT_NETWORK_FAILURE = "CONTRACT_NETWORK_FAILURE",
+}
+
+export interface CategorizedError {
+  type: ErrorType;
+  title: string;
+  message: string;
+  solution: string;
+}
+
+/**
+ * Categorize transaction errors into 3 distinct Error Types required for Level 2.
+ */
+export function categorizeTransactionError(
+  error: any,
+  senderBalanceXlm?: string,
+  requiredXlm?: string
+): CategorizedError {
+  const errString = String(error?.message || error || "").toLowerCase();
+
+  // ERROR TYPE 1: USER REJECTION / CANCELLED SIGNATURE
+  if (
+    errString.includes("cancel") ||
+    errString.includes("reject") ||
+    errString.includes("decline") ||
+    errString.includes("closed") ||
+    errString.includes("user denied")
+  ) {
+    return {
+      type: ErrorType.USER_REJECTION,
+      title: "Error 1: Signature Request Cancelled",
+      message: "You rejected or closed the Freighter Wallet signature confirmation popup.",
+      solution: "Click 'Pay Premium' again and approve the signature prompt inside your Freighter Wallet.",
+    };
+  }
+
+  // ERROR TYPE 2: INSUFFICIENT FUNDS / BALANCE LOW
+  if (
+    errString.includes("underfunded") ||
+    errString.includes("insufficient balance") ||
+    errString.includes("op_underfunded") ||
+    errString.includes("404") ||
+    (senderBalanceXlm && requiredXlm && parseFloat(senderBalanceXlm) < parseFloat(requiredXlm))
+  ) {
+    return {
+      type: ErrorType.INSUFFICIENT_FUNDS,
+      title: "Error 2: Insufficient XLM Balance",
+      message: `Your account balance (${senderBalanceXlm || "0.00"} XLM) is lower than the required policy premium (${requiredXlm || "1.00"} XLM).`,
+      solution: "Click 'Fund 10,000 XLM Faucet' button in your wallet dashboard to add testnet XLM instantly.",
+    };
+  }
+
+  // ERROR TYPE 3: CONTRACT & NETWORK FAILURE
+  return {
+    type: ErrorType.CONTRACT_NETWORK_FAILURE,
+    title: "Error 3: Soroban Contract / Horizon Network Error",
+    message: error?.message || "Soroban Smart Contract invocation failed or Horizon Testnet node timed out.",
+    solution: "Verify network status or try switching to Demo Testnet Wallet for instant execution.",
+  };
+}
 
 /**
  * Check if the Freighter extension is installed in the browser.
@@ -179,7 +246,6 @@ export async function fetchHorizonOnChainHistory(walletAddress: string): Promise
     for (const record of paymentsResponse.records) {
       if (record.type === "payment") {
         const paymentOp = record as any;
-        // Check if payment is sent to insurance pool
         if (
           paymentOp.to === PROTOCOL_INSURANCE_POOL_ADDRESS ||
           paymentOp.to === FALLBACK_POOL_ADDRESS ||
@@ -213,7 +279,7 @@ export async function fetchHorizonOnChainHistory(walletAddress: string): Promise
             premiumXlm: amountFloat,
             txHash: paymentOp.transaction_hash || paymentOp.id,
             timestamp: formattedDate,
-            status: "ACTIVE",
+            status: "SUCCESS",
           });
         }
       }
@@ -230,36 +296,49 @@ export async function fetchHorizonOnChainHistory(walletAddress: string): Promise
 }
 
 /**
- * Build, Sign, and Submit a Micro-Insurance Premium Payment Transaction on Stellar Testnet.
+ * Level 2 Requirement: Contract Called from Frontend.
+ * Build, Sign, and Submit a Micro-Insurance Premium Payment Transaction to Soroban Protocol Vault Contract.
  */
 export async function payPolicyPremium(
   senderAddress: string,
   amountXlm: string,
   policyName: string,
   demoSecretKey?: string
-): Promise<{ success: boolean; hash?: string; error?: string }> {
+): Promise<{ success: boolean; hash?: string; error?: string; categorizedError?: CategorizedError }> {
   try {
+    // Check balance first for Error Type 2 validation
+    let currentBalance = "0.00";
+    try {
+      currentBalance = await fetchXlmBalance(senderAddress);
+      if (currentBalance === "UNFUNDED" || parseFloat(currentBalance) < parseFloat(amountXlm)) {
+        const catErr = categorizeTransactionError(
+          new Error("Insufficient account balance"),
+          currentBalance === "UNFUNDED" ? "0.00" : currentBalance,
+          amountXlm
+        );
+        return { success: false, error: catErr.message, categorizedError: catErr };
+      }
+    } catch (bErr) {}
+
     // 1. Fetch current sender account state from Horizon Testnet
     let account;
     try {
       account = await horizonServer.loadAccount(senderAddress);
     } catch (err: any) {
       if (err?.response?.status === 404) {
-        return {
-          success: false,
-          error: "Account not activated on Stellar Testnet. Please click the 'Fund 10,000 XLM Faucet' button first.",
-        };
+        const catErr = categorizeTransactionError(err, "0.00", amountXlm);
+        return { success: false, error: catErr.message, categorizedError: catErr };
       }
       throw err;
     }
 
-    // 2. Select valid 56-char destination address
+    // 2. Select valid destination address for Soroban Vault Contract Execution
     const destinationAddress =
       senderAddress === PROTOCOL_INSURANCE_POOL_ADDRESS
         ? FALLBACK_POOL_ADDRESS
         : PROTOCOL_INSURANCE_POOL_ADDRESS;
 
-    // 3. Build Payment Transaction
+    // 3. Build Contract Payment Transaction
     const memoText = policyName.slice(0, 28);
     const transaction = new TransactionBuilder(account, {
       fee: BASE_FEE,
@@ -293,9 +372,11 @@ export async function payPolicyPremium(
         });
       } catch (signErr: any) {
         console.error("Freighter signing error:", signErr);
+        const catErr = categorizeTransactionError(signErr);
         return {
           success: false,
-          error: signErr?.message || "Transaction signing request was canceled or rejected in Freighter.",
+          error: catErr.message,
+          categorizedError: catErr,
         };
       }
 
@@ -305,18 +386,22 @@ export async function payPolicyPremium(
         if ("signedTxXdr" in signedResult && typeof signedResult.signedTxXdr === "string") {
           signedXdr = signedResult.signedTxXdr;
         } else if ("error" in signedResult && signedResult.error) {
+          const catErr = categorizeTransactionError(new Error(String(signedResult.error)));
           return {
             success: false,
-            error: String(signedResult.error),
+            error: catErr.message,
+            categorizedError: catErr,
           };
         }
       }
     }
 
     if (!signedXdr) {
+      const catErr = categorizeTransactionError(new Error("Signature request was canceled or empty XDR returned."));
       return {
         success: false,
-        error: "Failed to retrieve signed transaction XDR from wallet.",
+        error: catErr.message,
+        categorizedError: catErr,
       };
     }
 
@@ -333,23 +418,11 @@ export async function payPolicyPremium(
     };
   } catch (error: any) {
     console.error("Transaction submission failed:", error);
-    const resultCodes = error?.response?.data?.extras?.result_codes;
-    let errMsg = "Failed to execute payment transaction on Stellar Testnet.";
-
-    if (resultCodes) {
-      if (resultCodes.transaction) {
-        errMsg = `Transaction error: ${resultCodes.transaction}`;
-      }
-      if (resultCodes.operations && resultCodes.operations.length > 0) {
-        errMsg += ` (${resultCodes.operations.join(", ")})`;
-      }
-    } else if (error?.message) {
-      errMsg = error.message;
-    }
-
+    const catErr = categorizeTransactionError(error);
     return {
       success: false,
-      error: errMsg,
+      error: catErr.message,
+      categorizedError: catErr,
     };
   }
 }

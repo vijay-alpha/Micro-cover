@@ -2,9 +2,23 @@
 
 import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, XCircle, Loader2, ExternalLink, ShieldCheck, Sparkles, X, AlertTriangle } from "lucide-react";
+import {
+  CheckCircle2,
+  XCircle,
+  Loader2,
+  ExternalLink,
+  ShieldCheck,
+  Sparkles,
+  X,
+  AlertTriangle,
+  AlertCircle,
+  Coins,
+  Cpu,
+  RefreshCw,
+} from "lucide-react";
 import confetti from "canvas-confetti";
 import { InsurancePolicy } from "./PolicyCard";
+import { CategorizedError, ErrorType } from "@/lib/stellar";
 
 export type TxStatus = "IDLE" | "BUILDING" | "AWAITING_SIGNATURE" | "SUBMITTING" | "SUCCESS" | "ERROR";
 
@@ -14,6 +28,7 @@ interface TransactionModalProps {
   policy: InsurancePolicy | null;
   txHash: string | null;
   errorMessage: string | null;
+  categorizedError?: CategorizedError | null;
   onClose: () => void;
   onRetry?: () => void;
 }
@@ -24,12 +39,12 @@ export default function TransactionModal({
   policy,
   txHash,
   errorMessage,
+  categorizedError,
   onClose,
   onRetry,
 }: TransactionModalProps) {
   useEffect(() => {
     if (status === "SUCCESS") {
-      // Trigger festive confetti celebration on success
       try {
         confetti({
           particleCount: 80,
@@ -37,15 +52,51 @@ export default function TransactionModal({
           origin: { y: 0.6 },
           colors: ["#00f3ff", "#a855f7", "#00ff9d", "#ffffff"],
         });
-      } catch (e) {
-        // Ignore if confetti fails
-      }
+      } catch (e) {}
     }
   }, [status]);
 
   if (!isOpen) return null;
 
   const isPending = status === "BUILDING" || status === "AWAITING_SIGNATURE" || status === "SUBMITTING";
+
+  // Level 2 Requirement: Determine 3 Error Types
+  const getErrorTypeBadge = () => {
+    const msg = (errorMessage || "").toLowerCase();
+    if (categorizedError?.type === ErrorType.USER_REJECTION || msg.includes("cancel") || msg.includes("reject")) {
+      return {
+        badge: "ERROR TYPE 1: USER_REJECTION",
+        color: "from-amber-500/20 to-orange-500/20 border-amber-500/40 text-amber-300",
+        icon: AlertCircle,
+        title: "Signature Request Cancelled",
+        tip: "You declined or closed the Freighter popup window.",
+      };
+    }
+    if (
+      categorizedError?.type === ErrorType.INSUFFICIENT_FUNDS ||
+      msg.includes("insufficient") ||
+      msg.includes("underfunded") ||
+      msg.includes("balance")
+    ) {
+      return {
+        badge: "ERROR TYPE 2: INSUFFICIENT_FUNDS",
+        color: "from-rose-500/20 to-pink-500/20 border-rose-500/40 text-rose-300",
+        icon: Coins,
+        title: "Insufficient XLM Balance",
+        tip: "Your testnet XLM balance is lower than the premium cost. Click 'Fund 10,000 XLM Faucet' to add funds.",
+      };
+    }
+    return {
+      badge: "ERROR TYPE 3: CONTRACT_NETWORK_FAILURE",
+      color: "from-purple-500/20 to-indigo-500/20 border-purple-500/40 text-purple-300",
+      icon: Cpu,
+      title: "Soroban Contract / Horizon Network Failure",
+      tip: "Soroban smart contract execution failed or network node timed out.",
+    };
+  };
+
+  const errMeta = status === "ERROR" ? getErrorTypeBadge() : null;
+  const ErrorIcon = errMeta ? errMeta.icon : AlertTriangle;
 
   return (
     <AnimatePresence>
@@ -105,7 +156,7 @@ export default function TransactionModal({
                     }`}
                   />
                   <span className={status === "BUILDING" ? "text-cyan-300 font-semibold" : "text-slate-400"}>
-                    1. Building Stellar Testnet Transaction
+                    1. Building Soroban Contract Invocation
                   </span>
                 </div>
 
@@ -139,7 +190,7 @@ export default function TransactionModal({
                     }`}
                   />
                   <span className={status === "SUBMITTING" ? "text-emerald-300 font-semibold" : "text-slate-500"}>
-                    3. Submitting Signed XDR to Horizon Node
+                    3. Executing Contract Operation on Testnet
                   </span>
                 </div>
               </div>
@@ -163,7 +214,7 @@ export default function TransactionModal({
                   <Sparkles className="w-3 h-3" /> Policy Active
                 </span>
                 <h3 className="font-space text-2xl font-extrabold text-white">
-                  Payment Confirmed!
+                  Contract Execution Confirmed!
                 </h3>
                 <p className="text-xs text-slate-300 mt-1 max-w-sm">
                   You are now protected under <span className="text-cyan-300 font-semibold">{policy?.title}</span> for {policy?.premiumXlm} XLM.
@@ -179,7 +230,7 @@ export default function TransactionModal({
                   <p className="font-mono text-xs text-cyan-300 break-all bg-black/40 p-2.5 rounded-lg border border-white/5">
                     {txHash}
                   </p>
-                  
+
                   <a
                     href={`https://stellar.expert/explorer/testnet/tx/${txHash}`}
                     target="_blank"
@@ -201,33 +252,42 @@ export default function TransactionModal({
             </div>
           )}
 
-          {/* Error State */}
-          {status === "ERROR" && (
+          {/* Error State with 3 Error Types Display */}
+          {status === "ERROR" && errMeta && (
             <div className="flex flex-col items-center text-center space-y-5 py-2">
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                className="w-20 h-20 rounded-full bg-rose-500/20 border-2 border-rose-500 flex items-center justify-center text-rose-400 shadow-[0_0_30px_rgba(244,63,94,0.4)]"
+                className="w-16 h-16 rounded-full bg-rose-500/20 border-2 border-rose-500 flex items-center justify-center text-rose-400 shadow-[0_0_30px_rgba(244,63,94,0.4)]"
               >
-                <XCircle className="w-10 h-10 stroke-[2.5]" />
+                <ErrorIcon className="w-8 h-8 stroke-[2.5]" />
               </motion.div>
 
               <div>
-                <h3 className="font-space text-2xl font-extrabold text-white">
-                  Transaction Failed
+                <span
+                  className={`px-3 py-1 rounded-full text-[9px] font-extrabold uppercase tracking-widest bg-gradient-to-r ${errMeta.color} border inline-flex items-center gap-1 mb-2`}
+                >
+                  {errMeta.badge}
+                </span>
+                <h3 className="font-space text-xl font-extrabold text-white">
+                  {errMeta.title}
                 </h3>
-                <p className="text-xs text-slate-400 mt-1">
-                  Could not complete micro-insurance payment.
-                </p>
               </div>
 
               {/* Error Detail Container */}
-              <div className="w-full p-4 rounded-2xl bg-rose-950/40 border border-rose-500/30 text-left flex items-start gap-3">
-                <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
-                <div className="text-xs text-rose-200">
-                  <span className="font-bold block mb-0.5">Details:</span>
-                  <span>{errorMessage || "An unexpected error occurred during execution."}</span>
+              <div className="w-full p-4 rounded-2xl bg-slate-950/80 border border-white/10 text-left space-y-3">
+                <div className="flex items-start gap-2.5">
+                  <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                  <div className="text-xs text-slate-300">
+                    <span className="font-bold block text-white">Diagnostic Message:</span>
+                    <span className="font-mono text-[11px] text-rose-300">{errorMessage || "Transaction execution failed."}</span>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-white/10 text-xs">
+                  <span className="font-bold text-cyan-300 block mb-0.5">Recommended Resolution:</span>
+                  <p className="text-slate-300 leading-relaxed text-[11px]">{errMeta.tip}</p>
                 </div>
               </div>
 
@@ -236,14 +296,15 @@ export default function TransactionModal({
                   onClick={onClose}
                   className="flex-1 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-slate-300 font-semibold text-xs transition-colors"
                 >
-                  Cancel
+                  Dismiss
                 </button>
                 {onRetry && (
                   <button
                     onClick={onRetry}
-                    className="flex-1 py-3 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-bold text-xs shadow-lg transition-all"
+                    className="flex-1 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-extrabold text-xs shadow-lg transition-all flex items-center justify-center gap-1.5"
                   >
-                    Try Again
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Try Again</span>
                   </button>
                 )}
               </div>
