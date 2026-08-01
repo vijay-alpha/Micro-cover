@@ -35,7 +35,7 @@ MicroCover is a decentralized parametric micro-insurance protocol built on the *
 *Shows truncated wallet address (`GABC...3XYZ`), avatar badge, active pulse indicator, and Disconnect button.*
 
 ### 2. XLM Balance Displayed
-![Balance Displayed](./docs/screenshots/balance-displayed.png)
+<img width="1920" height="1034" alt="{4B1A867E-E685-4C84-AAC8-B7853B260512}" src="https://github.com/user-attachments/assets/081f3584-3d27-4eee-bb5e-a794267211e6" />
 *Displays real-time XLM balance fetched from Horizon Testnet on an animated 3D glass card with refresh & faucet shortcuts.*
 
 ### 3. Successful Testnet Transaction
