@@ -53,12 +53,12 @@ MicroCover is a decentralized parametric micro-insurance protocol built on the *
 ### 🌟 Level 2 Requirements & Verification
 
 #### 1. Deployed Smart Contract Address (Stellar Testnet)
-- **Deployed Contract ID**: `CDFLDXBQJDIDJP42YUW266WCKCRLMVLWZIWI3ARPK7QIMW4RAJXH6NWS`
-- **Explorer Verification Link**: [View Deployed Soroban Contract on Stellar Expert Explorer](https://stellar.expert/explorer/testnet/contract/CDFLDXBQJDIDJP42YUW266WCKCRLMVLWZIWI3ARPK7QIMW4RAJXH6NWS)
+- **Deployed Contract ID**: `CDTHJL7GVPKX24UWLTRH4K6N2ETTLE2D6SJAKTSPJ7SYHA4NMQHAG66A`
+- **Explorer Verification Link**: [View Deployed Soroban Contract on Stellar Expert Explorer](https://stellar.expert/explorer/testnet/contract/CDTHJL7GVPKX24UWLTRH4K6N2ETTLE2D6SJAKTSPJ7SYHA4NMQHAG66A)
 
 #### 2. Contract Call Transaction Hash
-- **Sample Contract Call Tx Hash**: `28487933a7f7bf8bf1d02110a3f1b7666e7cfb08137012ae0ac429d8ae045f27`
-- **Explorer Verification Link**: [View Contract Call Transaction on Stellar Expert Explorer](https://stellar.expert/explorer/testnet/tx/28487933a7f7bf8bf1d02110a3f1b7666e7cfb08137012ae0ac429d8ae045f27)
+- **Sample Contract Call Tx Hash**: `6db8d386102bd6c49a130df101d26122ca3e906d19da33a23cba9474b587be95`
+- **Explorer Verification Link**: [View Contract Call Transaction on Stellar Expert Explorer](https://stellar.expert/explorer/testnet/tx/6db8d386102bd6c49a130df101d26122ca3e906d19da33a23cba9474b587be95)
 
 #### 3. 3 Error Types Handled
 1. **ERROR TYPE 1: USER_REJECTION**: User declines or closes the Freighter signature popup window.
