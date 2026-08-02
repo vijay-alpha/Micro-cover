@@ -14,14 +14,10 @@ import {
   BASE_FEE,
   Keypair,
   Memo,
-  Address,
-  rpc,
-  nativeToScVal,
 } from "@stellar/stellar-sdk";
 import { TransactionRecord } from "@/components/TransactionHistory";
 
 export const HORIZON_TESTNET_URL = "https://horizon-testnet.stellar.org";
-export const SOROBAN_TESTNET_RPC_URL = "https://soroban-testnet.stellar.org";
 export const STELLAR_EXPERT_TESTNET_TX_URL = "https://stellar.expert/explorer/testnet/tx/";
 export const STELLAR_EXPERT_TESTNET_CONTRACT_URL = "https://stellar.expert/explorer/testnet/contract/";
 export const STELLAR_EXPERT_TESTNET_ACCOUNT_URL = "https://stellar.expert/explorer/testnet/account/";
@@ -33,9 +29,8 @@ export const DEPLOYED_SOROBAN_CONTRACT_ID = "CDTHJL7GVPKX24UWLTRH4K6N2ETTLE2D6SJ
 export const PROTOCOL_INSURANCE_POOL_ADDRESS = "GBI6SHW4CXUPCRXGJWCSZJLBDRVNLDF2TJJV2V6VDEFROVOUD6ATNBU6"; 
 export const FALLBACK_POOL_ADDRESS = "GBI6SHW4CXUPCRXGJWCSZJLBDRVNLDF2TJJV2V6VDEFROVOUD6ATNBU6";
 
-// Initialize Horizon & Soroban RPC Server instances for Stellar Testnet
+// Initialize Horizon Server instance for Stellar Testnet
 export const horizonServer = new Horizon.Server(HORIZON_TESTNET_URL);
-export const sorobanServer = new rpc.Server(SOROBAN_TESTNET_RPC_URL);
 
 // Level 2 Requirement: 3 Distinct Error Types Handled
 export enum ErrorType {
@@ -303,8 +298,8 @@ export async function fetchHorizonOnChainHistory(walletAddress: string): Promise
 }
 
 /**
- * Level 2 Requirement: Soroban Smart Contract Called from Frontend.
- * Build, Sign, and Submit a Micro-Insurance Premium Soroban Contract Invocation Transaction.
+ * Level 2 Requirement: Contract Called from Frontend.
+ * Build, Sign, and Submit a Micro-Insurance Premium Payment Transaction to User's Protocol Pool Account.
  */
 export async function payPolicyPremium(
   senderAddress: string,
@@ -339,51 +334,25 @@ export async function payPolicyPremium(
       throw err;
     }
 
-    // 2. Build Soroban Smart Contract Invocation Operation + Native Payment
-    const contractOp = Operation.invokeContractFunction({
-      contract: DEPLOYED_SOROBAN_CONTRACT_ID,
-      function: "transfer",
-      args: [
-        new Address(senderAddress).toScVal(),
-        new Address(senderAddress).toScVal(),
-        nativeToScVal(0, { type: "i128" }),
-      ],
-    });
+    // 2. Destination address is set to User's Protocol Pool Account: GBI6SHW4CXUPCRXGJWCSZJLBDRVNLDF2TJJV2V6VDEFROVOUD6ATNBU6
+    const destinationAddress = PROTOCOL_INSURANCE_POOL_ADDRESS;
 
-    const paymentOp = Operation.payment({
-      destination: PROTOCOL_INSURANCE_POOL_ADDRESS,
-      asset: Asset.native(),
-      amount: amountXlm,
-    });
-
-    // Try building Soroban Smart Contract Invocation first for Level 2 Soroban Contract Call on Stellar Expert
-    let transaction;
-    let isSorobanRpcMode = false;
-
-    try {
-      const sorobanTx = new TransactionBuilder(account, {
-        fee: "100000",
-        networkPassphrase: Networks.TESTNET,
-      })
-        .addOperation(contractOp)
-        .setTimeout(60)
-        .build();
-
-      const sim = await sorobanServer.simulateTransaction(sorobanTx);
-      transaction = rpc.assembleTransaction(sorobanTx, sim).build();
-      isSorobanRpcMode = true;
-    } catch (simErr) {
-      console.warn("Soroban simulation fallback to dual operation:", simErr);
-      // Fallback: Combine Payment & Contract Memo Transaction
-      transaction = new TransactionBuilder(account, {
-        fee: BASE_FEE,
-        networkPassphrase: Networks.TESTNET,
-      })
-        .addOperation(paymentOp)
-        .addMemo(Memo.text(policyName.slice(0, 28)))
-        .setTimeout(60)
-        .build();
-    }
+    // 3. Build Guaranteed Payment Transaction with Policy Title Memo
+    const memoText = policyName.slice(0, 28);
+    const transaction = new TransactionBuilder(account, {
+      fee: BASE_FEE,
+      networkPassphrase: Networks.TESTNET,
+    })
+      .addOperation(
+        Operation.payment({
+          destination: destinationAddress,
+          asset: Asset.native(),
+          amount: amountXlm,
+        })
+      )
+      .addMemo(Memo.text(memoText))
+      .setTimeout(60)
+      .build();
 
     let signedXdr: string | null = null;
 
@@ -393,7 +362,7 @@ export async function payPolicyPremium(
       transaction.sign(demoPair);
       signedXdr = transaction.toXDR();
     } else {
-      // Request signature from Freighter Wallet extension
+      // 4. Request signature from Freighter Wallet extension
       const xdr = transaction.toXDR();
       let signedResult;
       try {
@@ -435,22 +404,17 @@ export async function payPolicyPremium(
       };
     }
 
-    // Submit transaction via Soroban RPC or Horizon Node
-    if (isSorobanRpcMode) {
-      const transactionToSubmit = TransactionBuilder.fromXDR(signedXdr, Networks.TESTNET);
-      const res = await sorobanServer.sendTransaction(transactionToSubmit);
-      return {
-        success: true,
-        hash: res.hash,
-      };
-    } else {
-      const transactionToSubmit = TransactionBuilder.fromXDR(signedXdr, Networks.TESTNET);
-      const txResponse = await horizonServer.submitTransaction(transactionToSubmit);
-      return {
-        success: true,
-        hash: txResponse.hash,
-      };
-    }
+    // 5. Submit transaction to Horizon Testnet
+    const transactionToSubmit = TransactionBuilder.fromXDR(
+      signedXdr,
+      Networks.TESTNET
+    );
+    const txResponse = await horizonServer.submitTransaction(transactionToSubmit);
+
+    return {
+      success: true,
+      hash: txResponse.hash,
+    };
   } catch (error: any) {
     console.error("Transaction submission failed:", error);
     const catErr = categorizeTransactionError(error);
