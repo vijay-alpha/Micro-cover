@@ -10,8 +10,6 @@ MicroCover is a decentralized, institutional-grade parametric micro-insurance pr
 2. **Oracle Monitoring**: Decoupled network oracles monitor feed parameters (node latency, peg values, weather API telemetry) in real time.
 3. **Parametric Trigger & Automated Payout**: If a metric crosses the policy threshold (e.g., RPC node is down for >10 mins or stablecoin drops below $0.98), the Soroban smart contract validates the trigger and disburses the claim payout instantly back to the policyholder's Stellar account without requiring manual approval.
 
-*Currently operating on **Stellar Testnet** for Level 3 verification, with architecture ready to scale directly onto **Stellar Mainnet**.*
-
 ---
 
 ## 🔗 Quick Links
