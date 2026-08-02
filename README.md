@@ -1,6 +1,8 @@
 # 🛡️ MicroCover — Parametric Micro-Insurance Protocol on Stellar
 
 > **Decentralized Parametric Insurance Protocol on Stellar Testnet** | Built with Next.js (App Router), TypeScript, Tailwind CSS, Framer Motion, `@stellar/freighter-api`, `@stellar/stellar-sdk`, Firebase Firestore, and Soroban Smart Contracts.
+>
+> 🌐 **Live Vercel Production DApp**: [https://micro-cover.vercel.app/](https://micro-cover.vercel.app/)
 
 MicroCover is a decentralized parametric micro-insurance protocol built on the **Stellar Testnet**. It enables users to purchase low-cost micro-coverage policies (against Web3 RPC downtime, stablecoin de-pegging, and weather anomalies) with automated oracle triggers, Soroban smart contracts, and instant Horizon Testnet payouts.
 
@@ -51,6 +53,9 @@ MicroCover is a decentralized parametric micro-insurance protocol built on the *
 ## 🟡 Level 2 (Yellow Belt Submission)
 
 ### 🌟 Level 2 Requirements & Verification
+
+#### 🌐 Live Vercel Deployment Link
+- **Vercel Live Application**: [https://micro-cover.vercel.app/](https://micro-cover.vercel.app/)
 
 #### 1. Deployed Smart Contract Address (Stellar Testnet)
 - **Deployed Contract ID**: `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`
