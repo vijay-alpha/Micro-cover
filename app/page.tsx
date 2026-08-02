@@ -207,7 +207,6 @@ export default function Home() {
     const updatedRecords = txHistoryRecords.filter((rec) => rec.id !== recordId);
     setTxHistoryRecords(updatedRecords);
 
-    // If no records left for purchased policy, remove policy ID highlight as well
     if (walletAddress) {
       if (typeof window !== "undefined") {
         localStorage.setItem(`microcover_history_${walletAddress}`, JSON.stringify(updatedRecords));
@@ -239,10 +238,10 @@ export default function Home() {
 
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-8 space-y-6">
-              {/* Badge */}
+              {/* Clean Protocol Badge */}
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/90 border border-cyan-500/40 text-cyan-300 text-xs font-bold tracking-wider uppercase shadow-[0_0_15px_rgba(0,243,255,0.2)]">
                 <Sparkles className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-                <span>LEVEL 2 • SOROBAN SMART CONTRACT PROTOCOL • STELLAR TESTNET</span>
+                <span>SOROBAN SMART CONTRACT PROTOCOL • STELLAR TESTNET</span>
               </div>
 
               <h1 className="font-space text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.08] text-white">
