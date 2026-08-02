@@ -74,73 +74,16 @@ export default function WalletConnect({
     }
   };
 
-  const handleConnectAlbedoWebIntent = async () => {
-    setIsConnecting(true);
+  const handleSelectAlbedoOption = () => {
     setErrorMsg(null);
-    try {
-      // 1. Try window.albedo SDK if present
-      if (typeof window !== "undefined" && (window as any).albedo) {
-        try {
-          const res = await (window as any).albedo.publicKey({ network: "testnet" });
-          if (res && res.pubkey) {
-            localStorage.setItem("microcover_active_wallet", res.pubkey);
-            localStorage.removeItem("microcover_user_disconnected");
-            onConnect(res.pubkey);
-            setIsModalOpen(false);
-            setIsConnecting(false);
-            return;
-          }
-        } catch (sdkErr) {
-          console.warn("Albedo SDK prompt canceled/failed:", sdkErr);
-        }
-      }
-
-      // 2. Open Albedo Intent in a clean full-sized popup window (800x700)
-      const width = 800;
-      const height = 700;
-      const left = typeof window !== "undefined" ? window.screenX + (window.outerWidth - width) / 2 : 100;
-      const top = typeof window !== "undefined" ? window.screenY + (window.outerHeight - height) / 2 : 100;
-
-      const albedoPopup = window.open(
-        "https://albedo.link/confirm?intent=public_key&network=testnet",
-        "albedo_connect_popup",
-        `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
-      );
-
-      // Listen for postMessage from Albedo popup window ONLY when user confirms
-      const handleMessage = (event: MessageEvent) => {
-        if (event.data && (event.data.pubkey || event.data.result?.pubkey)) {
-          const pub = event.data.pubkey || event.data.result?.pubkey;
-          if (pub && typeof window !== "undefined") {
-            window.removeEventListener("message", handleMessage);
-            localStorage.setItem("microcover_active_wallet", pub);
-            localStorage.removeItem("microcover_user_disconnected");
-            onConnect(pub);
-            setIsModalOpen(false);
-            setIsConnecting(false);
-          }
-        }
-      };
-
-      if (typeof window !== "undefined") {
-        window.addEventListener("message", handleMessage);
-      }
-
-      // Enable manual Albedo address input fallback if user prefers pasting their Albedo address
-      setShowAlbedoInput(true);
-
-    } catch (err: any) {
-      console.error("Albedo connection error:", err);
-      setErrorMsg("Failed to open Albedo connection window.");
-    } finally {
-      setIsConnecting(false);
-    }
+    // Open the manual key input directly to avoid Brave Shield script blocking popups
+    setShowAlbedoInput((prev) => !prev);
   };
 
   const handleSubmitAlbedoManualKey = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanAddr = albedoInputAddress.trim();
-    if (!cleanAddr || cleanAddr.length < 50 || !cleanAddr.startsWith("G")) {
+    if (!cleanAddr || cleanAddr.length !== 56 || !cleanAddr.startsWith("G")) {
       setErrorMsg("Please enter a valid Stellar public key starting with 'G' (56 characters).");
       return;
     }
@@ -256,7 +199,7 @@ export default function WalletConnect({
         </AnimatePresence>
       </div>
 
-      {/* React Portal: Render Wallet Options Modal directly on document.body for 100% viewport centering */}
+      {/* React Portal: Render Wallet Options Modal directly on document.body for 100% centering */}
       {mounted &&
         createPortal(
           <AnimatePresence>
@@ -322,8 +265,7 @@ export default function WalletConnect({
 
                     {/* Option 2: Albedo Web Wallet */}
                     <button
-                      onClick={handleConnectAlbedoWebIntent}
-                      disabled={isConnecting}
+                      onClick={handleSelectAlbedoOption}
                       className="w-full p-4 rounded-2xl bg-slate-900/90 hover:bg-purple-500/10 border border-white/10 hover:border-purple-500/40 text-left transition-all flex items-center justify-between group"
                     >
                       <div className="flex items-center gap-3">
@@ -342,15 +284,11 @@ export default function WalletConnect({
                           <span className="text-xs text-slate-400">Web-based signature provider for Stellar</span>
                         </div>
                       </div>
-                      {isConnecting ? (
-                        <Loader2 className="w-5 h-5 animate-spin text-purple-400" />
-                      ) : (
-                        <CheckCircle2 className="w-5 h-5 text-purple-400/40 group-hover:text-purple-400 transition-colors" />
-                      )}
+                      <CheckCircle2 className={`w-5 h-5 text-purple-400/40 group-hover:text-purple-400 transition-colors ${showAlbedoInput ? "rotate-90 text-purple-400" : ""}`} />
                     </button>
                   </div>
 
-                  {/* Albedo Manual Address Input Option */}
+                  {/* Albedo Manual Address Input Section */}
                   {showAlbedoInput && (
                     <motion.form
                       initial={{ opacity: 0, height: 0 }}
@@ -359,15 +297,23 @@ export default function WalletConnect({
                       className="p-4 rounded-2xl bg-slate-900/90 border border-purple-500/30 space-y-3"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-purple-300">Enter Albedo / Stellar Public Key</span>
-                        <span className="text-[10px] text-slate-400">Starts with G...</span>
+                        <span className="text-xs font-bold text-purple-300">Paste Albedo / Stellar Public Key:</span>
+                        <a
+                          href="https://albedo.link"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[10px] text-cyan-400 hover:underline flex items-center gap-0.5"
+                        >
+                          <span>Open albedo.link</span>
+                          <ArrowRight className="w-2.5 h-2.5" />
+                        </a>
                       </div>
                       <div className="flex gap-2">
                         <input
                           type="text"
                           value={albedoInputAddress}
                           onChange={(e) => setAlbedoInputAddress(e.target.value)}
-                          placeholder="GBA3MCWY..."
+                          placeholder="G..."
                           className="flex-1 px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-xs font-mono text-cyan-300 focus:outline-none focus:border-purple-500/60"
                         />
                         <button
@@ -375,9 +321,11 @@ export default function WalletConnect({
                           className="px-3 py-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 font-bold border border-purple-500/40 text-xs flex items-center gap-1 transition-colors"
                         >
                           <span>Connect</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
                         </button>
                       </div>
+                      <p className="text-[10px] text-slate-400 leading-normal">
+                        To avoid browser adblockers or Brave Shield blocking Albedo popups, open <a href="https://albedo.link" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">albedo.link</a>, copy your public key (starts with 'G'), and paste it above to connect instantly.
+                      </p>
                     </motion.form>
                   )}
 
