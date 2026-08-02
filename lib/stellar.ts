@@ -21,8 +21,8 @@ export const HORIZON_TESTNET_URL = "https://horizon-testnet.stellar.org";
 export const STELLAR_EXPERT_TESTNET_TX_URL = "https://stellar.expert/explorer/testnet/tx/";
 export const STELLAR_EXPERT_TESTNET_CONTRACT_URL = "https://stellar.expert/explorer/testnet/contract/";
 
-// Valid 56-character Soroban Smart Contract Address on Stellar Testnet
-export const DEPLOYED_SOROBAN_CONTRACT_ID = "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMWAAHY5XC5WGA";
+// Live Deployed Soroban Smart Contract Address indexed on Stellar Expert Testnet
+export const DEPLOYED_SOROBAN_CONTRACT_ID = "CDFLDXBQJDIDJP42YUW266WCKCRLMVLWZIWI3ARPK7QIMW4RAJXH6NWS";
 export const PROTOCOL_INSURANCE_POOL_ADDRESS = "GBWVMYMYP3XXZHRCMUDRZAN3SZRKL65WEKFLIWBSBOY22OM4QEBTYC23"; 
 export const FALLBACK_POOL_ADDRESS = "GAOKREOZ2KOOPBXYSL3NUWN5GUZDDXM32B5ZQTWZ5OHJLFFNVPTBTWM2";
 
