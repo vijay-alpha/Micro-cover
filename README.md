@@ -145,7 +145,7 @@ npm run start
 *Shows GitHub Actions CI/CD Pipeline (`ci.yml`) executing automated linting, test suite execution, and production build validation on every push.*
 
 #### 3. Test Output with 3+ Passing Tests
-<img width="1920" height="1034" alt="Test Output with 3+ Passing Tests" src="https://github.com/user-attachments/assets/0696B73D-601D-4912-BF44-AB462EC58768" />
+<img width="1918" height="1093" alt="{21C838C8-D46F-467C-9021-A1B2CDE0A930}" src="https://github.com/user-attachments/assets/d091dfd4-9d0d-46b7-9f94-6489e13ed7b0" />
 *Displays test execution output: 4/4 passed test suites verifying Horizon balance logic, 3 Level 2 Error Types, Soroban contract Stroop calculations, and oracle trigger threshold rules.*
 
 ---
