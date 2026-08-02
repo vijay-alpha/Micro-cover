@@ -7,7 +7,6 @@ import {
   isFreighterInstalled,
   connectFreighterWallet,
   createDemoTestnetWallet,
-  getFreighterPublicKey,
 } from "@/lib/stellar";
 
 interface WalletConnectProps {
@@ -34,27 +33,18 @@ export default function WalletConnect({
       setIsInstalled(installed);
 
       if (typeof window !== "undefined") {
+        // If user explicitly clicked Disconnect, do NOT auto-connect on page refresh
+        const userDisconnected = localStorage.getItem("microcover_user_disconnected");
+        if (userDisconnected === "true") {
+          return;
+        }
+
         const savedWallet = localStorage.getItem("microcover_active_wallet");
         const savedSecret = localStorage.getItem("microcover_demo_secret");
 
         if (savedWallet) {
           if (savedSecret) setIsDemoWallet(true);
           onConnect(savedWallet, savedSecret || undefined);
-          return;
-        }
-      }
-
-      if (installed && !walletAddress) {
-        try {
-          const key = await getFreighterPublicKey();
-          if (key) {
-            if (typeof window !== "undefined") {
-              localStorage.setItem("microcover_active_wallet", key);
-            }
-            onConnect(key);
-          }
-        } catch {
-          // User hasn't approved popup yet
         }
       }
     }
@@ -70,6 +60,7 @@ export default function WalletConnect({
         if (typeof window !== "undefined") {
           localStorage.setItem("microcover_active_wallet", result.address);
           localStorage.removeItem("microcover_demo_secret");
+          localStorage.removeItem("microcover_user_disconnected");
         }
         setIsDemoWallet(false);
         onConnect(result.address);
@@ -93,6 +84,7 @@ export default function WalletConnect({
       if (typeof window !== "undefined") {
         localStorage.setItem("microcover_active_wallet", demo.publicKey);
         localStorage.setItem("microcover_demo_secret", demo.secretKey);
+        localStorage.removeItem("microcover_user_disconnected");
       }
       setIsDemoWallet(true);
       onConnect(demo.publicKey, demo.secretKey);
@@ -109,6 +101,8 @@ export default function WalletConnect({
     if (typeof window !== "undefined") {
       localStorage.removeItem("microcover_active_wallet");
       localStorage.removeItem("microcover_demo_secret");
+      // Store explicit user disconnect flag to prevent auto-reconnect on refresh
+      localStorage.setItem("microcover_user_disconnected", "true");
     }
     setIsDemoWallet(false);
     onDisconnect();
