@@ -53,8 +53,8 @@ MicroCover is a decentralized parametric micro-insurance protocol built on the *
 ### 🌟 Level 2 Requirements & Verification
 
 #### 1. Deployed Smart Contract Address (Stellar Testnet)
-- **Deployed Contract ID**: `CAOKREOZ2KOOPBXYSL3NUWN5GUZDDXM32B5ZQTWZ5OHJLFFNVPTBTWM2`
-- **Explorer Verification Link**: [View Deployed Soroban Contract on Stellar Expert Explorer](https://stellar.expert/explorer/testnet/contract/CAOKREOZ2KOOPBXYSL3NUWN5GUZDDXM32B5ZQTWZ5OHJLFFNVPTBTWM2)
+- **Deployed Contract ID**: `CDFLDXBQJDIDJP42YUW266WCKCRLMVLWZIWI3ARPK7QIMW4RAJXH6NWS`
+- **Explorer Verification Link**: [View Deployed Soroban Contract on Stellar Expert Explorer](https://stellar.expert/explorer/testnet/contract/CDFLDXBQJDIDJP42YUW266WCKCRLMVLWZIWI3ARPK7QIMW4RAJXH6NWS)
 
 #### 2. Contract Call Transaction Hash
 - **Sample Contract Call Tx Hash**: `28487933a7f7bf8bf1d02110a3f1b7666e7cfb08137012ae0ac429d8ae045f27`
