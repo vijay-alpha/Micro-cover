@@ -10,6 +10,7 @@
     "test": "node scripts/run_tests.js"
   },
   "dependencies": {
+    "@albedo-link/intent": "^0.13.0",
     "@stellar/freighter-api": "^6.0.1",
     "@stellar/stellar-sdk": "^16.2.0",
     "canvas-confetti": "^1.9.4",

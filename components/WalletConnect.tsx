@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Wallet, LogOut, ShieldAlert, Loader2, Globe, X, CheckCircle2, ArrowRight } from "lucide-react";
+import albedo from "@albedo-link/intent";
 import {
   isFreighterInstalled,
   connectFreighterWallet,
@@ -30,17 +31,8 @@ export default function WalletConnect({
   const [showAlbedoInput, setShowAlbedoInput] = useState(false);
   const [albedoInputAddress, setAlbedoInputAddress] = useState("");
 
-  // Load Albedo intent script on mount immediately so it is ready when clicked
   useEffect(() => {
     setMounted(true);
-
-    if (typeof window !== "undefined" && !(window as any).albedo) {
-      const script = document.createElement("script");
-      script.src = "https://albedo.link/intent-script/albedo.js";
-      script.async = true;
-      document.body.appendChild(script);
-    }
-
     async function checkInstallationAndAutoConnect() {
       const installed = await isFreighterInstalled();
       setIsInstalled(installed);
@@ -87,74 +79,22 @@ export default function WalletConnect({
     setIsConnecting(true);
     setErrorMsg(null);
     try {
-      // 1. If Albedo SDK is loaded on window, invoke standard connect popup
-      if (typeof window !== "undefined" && (window as any).albedo) {
-        const res = await (window as any).albedo.publicKey({ network: "testnet" });
-        if (res && res.pubkey) {
+      // Invoke official Albedo connect intent using bundled npm package (no dynamic script script injection!)
+      const res = await albedo.publicKey({});
+
+      if (res && res.pubkey) {
+        if (typeof window !== "undefined") {
           localStorage.setItem("microcover_active_wallet", res.pubkey);
           localStorage.removeItem("microcover_user_disconnected");
-          onConnect(res.pubkey);
-          setIsModalOpen(false);
-          return;
         }
+        onConnect(res.pubkey);
+        setIsModalOpen(false);
+      } else {
+        setErrorMsg("Could not retrieve account address from Albedo.");
       }
-
-      // 2. Dynamic load fallback if window.albedo is missing
-      if (typeof window !== "undefined") {
-        await new Promise<void>((resolve, reject) => {
-          const script = document.createElement("script");
-          script.src = "https://albedo.link/intent-script/albedo.js";
-          script.async = true;
-          script.onload = () => resolve();
-          script.onerror = () => reject(new Error("Could not load Albedo SDK. Please try the manual key entry below."));
-          document.body.appendChild(script);
-        });
-
-        if ((window as any).albedo) {
-          const res = await (window as any).albedo.publicKey({ network: "testnet" });
-          if (res && res.pubkey) {
-            localStorage.setItem("microcover_active_wallet", res.pubkey);
-            localStorage.removeItem("microcover_user_disconnected");
-            onConnect(res.pubkey);
-            setIsModalOpen(false);
-            return;
-          }
-        }
-      }
-
-      // 3. Last fallback: Direct Popup window with postMessage listener
-      const width = 500;
-      const height = 650;
-      const left = typeof window !== "undefined" ? window.screenX + (window.outerWidth - width) / 2 : 100;
-      const top = typeof window !== "undefined" ? window.screenY + (window.outerHeight - height) / 2 : 100;
-
-      const albedoPopup = window.open(
-        "https://albedo.link/confirm?intent=public_key&network=testnet",
-        "albedo_intent_popup",
-        `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
-      );
-
-      const handleMessage = (event: MessageEvent) => {
-        if (event.origin.includes("albedo.link") && event.data) {
-          const pub = event.data.pubkey || event.data.result?.pubkey;
-          if (pub && typeof window !== "undefined") {
-            window.removeEventListener("message", handleMessage);
-            localStorage.setItem("microcover_active_wallet", pub);
-            localStorage.removeItem("microcover_user_disconnected");
-            onConnect(pub);
-            setIsModalOpen(false);
-          }
-        }
-      };
-
-      if (typeof window !== "undefined") {
-        window.addEventListener("message", handleMessage);
-      }
-
     } catch (err: any) {
       console.error("Albedo connection error:", err);
-      setErrorMsg(err?.message || "Albedo connection closed or rejected.");
-      setShowAlbedoInput(true); // show input fallback on error
+      setErrorMsg(err?.message || "Albedo connection request was closed or canceled by user.");
     } finally {
       setIsConnecting(false);
     }
