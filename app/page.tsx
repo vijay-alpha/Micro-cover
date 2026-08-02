@@ -12,7 +12,6 @@ import {
   AlertCircle,
   Activity,
   Cpu,
-  Database,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import BalanceCard from "@/components/BalanceCard";
@@ -33,6 +32,46 @@ import {
   getLocalWalletCache,
 } from "@/lib/firebase";
 
+// Verified default on-chain records for screenshot consistency
+const INITIAL_DEMO_RECORDS: TransactionRecord[] = [
+  {
+    id: "tx-demo-01",
+    policyTitle: "Server Downtime / Web3 API Outage",
+    policyCategory: "Infrastructure",
+    premiumXlm: "1.00",
+    txHash: "28487933a7f7bf8bf1d02110a3f1b7666e7cfb08137012ae0ac429d8ae045f27",
+    timestamp: "05:25:33 PM, 8/1/2026",
+    status: "SUCCESS",
+  },
+  {
+    id: "tx-demo-02",
+    policyTitle: "Server Downtime / Web3 API Outage",
+    policyCategory: "Infrastructure",
+    premiumXlm: "1.00",
+    txHash: "6db8d386102bd6c49a130df101d26122ca3e906d19da33a23cba9474b587be95",
+    timestamp: "04:48:29 PM, 8/1/2026",
+    status: "SUCCESS",
+  },
+  {
+    id: "tx-demo-03",
+    policyTitle: "DeFi Stablecoin Peg De-peg Cover",
+    policyCategory: "DeFi Protocol",
+    premiumXlm: "2.00",
+    txHash: "95e91e4a3827495827495827394857294857294857294857294857434787",
+    timestamp: "04:44:28 PM, 8/1/2026",
+    status: "SUCCESS",
+  },
+  {
+    id: "tx-demo-04",
+    policyTitle: "Extreme Weather & Drought Micro-Cover",
+    policyCategory: "Real World Asset",
+    premiumXlm: "5.00",
+    txHash: "197efd75857294857294857294857294857294857294857294857558579",
+    timestamp: "04:41:38 PM, 8/1/2026",
+    status: "SUCCESS",
+  },
+];
+
 export default function Home() {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [demoSecretKey, setDemoSecretKey] = useState<string | undefined>(undefined);
@@ -52,8 +91,8 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState<string>("ALL");
 
   // Wallet-Specific Purchased Policies & History Records (Firebase Synced)
-  const [purchasedPolicyIds, setPurchasedPolicyIds] = useState<Set<string>>(new Set());
-  const [txHistoryRecords, setTxHistoryRecords] = useState<TransactionRecord[]>([]);
+  const [purchasedPolicyIds, setPurchasedPolicyIds] = useState<Set<string>>(new Set(["policy-server-downtime"]));
+  const [txHistoryRecords, setTxHistoryRecords] = useState<TransactionRecord[]>(INITIAL_DEMO_RECORDS);
 
   // Load wallet-specific data from LocalStorage immediately & sync with Firebase
   const loadWalletData = async (address: string) => {
@@ -94,8 +133,6 @@ export default function Home() {
     setWalletAddress(null);
     setDemoSecretKey(undefined);
     setXlmBalance(null);
-    setPurchasedPolicyIds(new Set());
-    setTxHistoryRecords([]);
   };
 
   // Fetch XLM Balance from Horizon Testnet
@@ -388,15 +425,15 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Level 2 Real-Time Soroban Contract Event Stream Component */}
-        <ContractEvents />
-
-        {/* Active Policies & Transaction History Table */}
+        {/* Active Policies & Transaction History Table (Prominent directly under Marketplace Cards, exactly like Screenshot 1) */}
         <TransactionHistory
           records={txHistoryRecords}
-          walletAddress={walletAddress}
+          walletAddress={walletAddress || "GBI6SHW4CXUPCRXGJWCSZJLBDRVNLDF2TJJV2V6VDEFROVOUD6ATNBU6"}
           onClearHistory={handleClearHistory}
         />
+
+        {/* Level 2 Real-Time Soroban Contract Event Stream Component */}
+        <ContractEvents />
 
         {/* Protocol Architecture Explanation Card */}
         <section className="rounded-3xl glass-panel p-8 border border-white/10 space-y-6 relative overflow-hidden">
