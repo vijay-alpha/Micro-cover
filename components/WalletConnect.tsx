@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Wallet, LogOut, ShieldAlert, Loader2, Globe, X, CheckCircle2 } from "lucide-react";
+import { Wallet, LogOut, ShieldAlert, Loader2, Globe, X, CheckCircle2, ArrowRight } from "lucide-react";
 import {
   isFreighterInstalled,
   connectFreighterWallet,
@@ -25,6 +25,10 @@ export default function WalletConnect({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isInstalled, setIsInstalled] = useState<boolean | null>(null);
   const [mounted, setMounted] = useState(false);
+
+  // Albedo manual address input state
+  const [showAlbedoInput, setShowAlbedoInput] = useState(false);
+  const [albedoInputAddress, setAlbedoInputAddress] = useState("");
 
   useEffect(() => {
     setMounted(true);
@@ -70,7 +74,7 @@ export default function WalletConnect({
     }
   };
 
-  const handleConnectAlbedo = async () => {
+  const handleConnectAlbedoWebIntent = async () => {
     setIsConnecting(true);
     setErrorMsg(null);
     try {
@@ -83,29 +87,27 @@ export default function WalletConnect({
             localStorage.removeItem("microcover_user_disconnected");
             onConnect(res.pubkey);
             setIsModalOpen(false);
+            setIsConnecting(false);
             return;
           }
         } catch (sdkErr) {
-          console.warn("Albedo SDK prompt canceled/failed, using popup intent:", sdkErr);
+          console.warn("Albedo SDK prompt canceled/failed:", sdkErr);
         }
       }
 
-      // 2. Direct Web Intent Popup for Albedo (100% reliable zero-dependency popup)
-      const width = 450;
-      const height = 660;
+      // 2. Open Albedo Intent in a clean full-sized popup window (800x700)
+      const width = 800;
+      const height = 700;
       const left = typeof window !== "undefined" ? window.screenX + (window.outerWidth - width) / 2 : 100;
       const top = typeof window !== "undefined" ? window.screenY + (window.outerHeight - height) / 2 : 100;
 
       const albedoPopup = window.open(
         "https://albedo.link/confirm?intent=public_key&network=testnet",
-        "albedo_intent_popup",
+        "albedo_connect_popup",
         `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
       );
 
-      // Default Albedo Testnet Account Key matching screenshot
-      const albedoTestnetKey = "GBA3MCWY23S45VXYZ7TESTNETALBEDOKEY4VE21707";
-
-      // Listen for postMessage from Albedo popup window
+      // Listen for postMessage from Albedo popup window ONLY when user confirms
       const handleMessage = (event: MessageEvent) => {
         if (event.data && (event.data.pubkey || event.data.result?.pubkey)) {
           const pub = event.data.pubkey || event.data.result?.pubkey;
@@ -115,6 +117,7 @@ export default function WalletConnect({
             localStorage.removeItem("microcover_user_disconnected");
             onConnect(pub);
             setIsModalOpen(false);
+            setIsConnecting(false);
           }
         }
       };
@@ -123,30 +126,8 @@ export default function WalletConnect({
         window.addEventListener("message", handleMessage);
       }
 
-      // Polling fallback to check if popup closed or auto-authorize
-      const checkPopup = setInterval(() => {
-        if (albedoPopup && albedoPopup.closed) {
-          clearInterval(checkPopup);
-          if (typeof window !== "undefined") {
-            window.removeEventListener("message", handleMessage);
-            const activeWallet = localStorage.getItem("microcover_active_wallet") || albedoTestnetKey;
-            localStorage.setItem("microcover_active_wallet", activeWallet);
-            localStorage.removeItem("microcover_user_disconnected");
-            onConnect(activeWallet);
-            setIsModalOpen(false);
-          }
-        }
-      }, 500);
-
-      // Immediate connect safety fallback
-      setTimeout(() => {
-        if (typeof window !== "undefined" && !localStorage.getItem("microcover_active_wallet")) {
-          localStorage.setItem("microcover_active_wallet", albedoTestnetKey);
-          localStorage.removeItem("microcover_user_disconnected");
-          onConnect(albedoTestnetKey);
-          setIsModalOpen(false);
-        }
-      }, 2500);
+      // Enable manual Albedo address input fallback if user prefers pasting their Albedo address
+      setShowAlbedoInput(true);
 
     } catch (err: any) {
       console.error("Albedo connection error:", err);
@@ -154,6 +135,24 @@ export default function WalletConnect({
     } finally {
       setIsConnecting(false);
     }
+  };
+
+  const handleSubmitAlbedoManualKey = (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanAddr = albedoInputAddress.trim();
+    if (!cleanAddr || cleanAddr.length < 50 || !cleanAddr.startsWith("G")) {
+      setErrorMsg("Please enter a valid Stellar public key starting with 'G' (56 characters).");
+      return;
+    }
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem("microcover_active_wallet", cleanAddr);
+      localStorage.removeItem("microcover_user_disconnected");
+    }
+    onConnect(cleanAddr);
+    setIsModalOpen(false);
+    setShowAlbedoInput(false);
+    setAlbedoInputAddress("");
   };
 
   const handleDisconnect = () => {
@@ -242,7 +241,11 @@ export default function WalletConnect({
                 id="connect-wallet-btn"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => {
+                  setIsModalOpen(true);
+                  setShowAlbedoInput(false);
+                  setErrorMsg(null);
+                }}
                 className="relative group overflow-hidden px-5 py-2.5 rounded-2xl btn-neon-primary flex items-center gap-2 text-slate-950 font-extrabold text-xs shadow-[0_0_25px_rgba(0,243,255,0.4)]"
               >
                 <Wallet className="w-4 h-4 text-slate-950 stroke-[2.5]" />
@@ -276,7 +279,10 @@ export default function WalletConnect({
                       </div>
                     </div>
                     <button
-                      onClick={() => setIsModalOpen(false)}
+                      onClick={() => {
+                        setIsModalOpen(false);
+                        setShowAlbedoInput(false);
+                      }}
                       className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/10 transition-colors"
                     >
                       <X className="w-4 h-4" />
@@ -316,7 +322,7 @@ export default function WalletConnect({
 
                     {/* Option 2: Albedo Web Wallet */}
                     <button
-                      onClick={handleConnectAlbedo}
+                      onClick={handleConnectAlbedoWebIntent}
                       disabled={isConnecting}
                       className="w-full p-4 rounded-2xl bg-slate-900/90 hover:bg-purple-500/10 border border-white/10 hover:border-purple-500/40 text-left transition-all flex items-center justify-between group"
                     >
@@ -343,6 +349,37 @@ export default function WalletConnect({
                       )}
                     </button>
                   </div>
+
+                  {/* Albedo Manual Address Input Option */}
+                  {showAlbedoInput && (
+                    <motion.form
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      onSubmit={handleSubmitAlbedoManualKey}
+                      className="p-4 rounded-2xl bg-slate-900/90 border border-purple-500/30 space-y-3"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-purple-300">Enter Albedo / Stellar Public Key</span>
+                        <span className="text-[10px] text-slate-400">Starts with G...</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={albedoInputAddress}
+                          onChange={(e) => setAlbedoInputAddress(e.target.value)}
+                          placeholder="GBA3MCWY..."
+                          className="flex-1 px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-xs font-mono text-cyan-300 focus:outline-none focus:border-purple-500/60"
+                        />
+                        <button
+                          type="submit"
+                          className="px-3 py-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 font-bold border border-purple-500/40 text-xs flex items-center gap-1 transition-colors"
+                        >
+                          <span>Connect</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </motion.form>
+                  )}
 
                   {errorMsg && (
                     <div className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
