@@ -141,7 +141,7 @@ npm run start
 *Shows fully responsive mobile layout with mobile navigation drawer, touch controls, and optimized card grids for mobile viewports.*
 
 #### 2. CI/CD Pipeline Running (GitHub Actions)
-<img width="1920" height="1034" alt="CI/CD Pipeline Running" src="https://github.com/user-attachments/assets/081f3584-3d27-4eee-bb5e-a794267211e6" />
+<img width="1918" height="1028" alt="{6FC66634-7C2D-4087-9718-740252E70F8B}" src="https://github.com/user-attachments/assets/4771a9a9-102e-42da-b3ab-f3b642c5097a" />
 *Shows GitHub Actions CI/CD Pipeline (`ci.yml`) executing automated linting, test suite execution, and production build validation on every push.*
 
 #### 3. Test Output with 3+ Passing Tests
