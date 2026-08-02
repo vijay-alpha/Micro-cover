@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Wallet, LogOut, ShieldAlert, Loader2, Key } from "lucide-react";
+import { Wallet, LogOut, ShieldAlert, Loader2, Key, Globe, X, CheckCircle2 } from "lucide-react";
 import {
   isFreighterInstalled,
   connectFreighterWallet,
@@ -21,6 +21,7 @@ export default function WalletConnect({
   onConnect,
   onDisconnect,
 }: WalletConnectProps) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isCreatingDemo, setIsCreatingDemo] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -72,6 +73,7 @@ export default function WalletConnect({
         }
         setIsDemoWallet(false);
         onConnect(result.address);
+        setIsModalOpen(false);
       } else {
         setErrorMsg(result.error || "Could not connect to Freighter Wallet.");
       }
@@ -94,6 +96,7 @@ export default function WalletConnect({
       }
       setIsDemoWallet(true);
       onConnect(demo.publicKey, demo.secretKey);
+      setIsModalOpen(false);
     } catch (err: any) {
       console.error("Demo wallet error:", err);
       setErrorMsg("Failed to generate Demo Testnet Wallet.");
@@ -183,69 +186,146 @@ export default function WalletConnect({
             exit={{ opacity: 0, scale: 0.95 }}
             className="flex items-center gap-3"
           >
-            {/* Primary Connect Freighter Wallet Button */}
+            {/* Primary Connect Wallet Button */}
             <motion.button
               id="connect-wallet-btn"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
-              onClick={handleConnectFreighter}
-              disabled={isConnecting || isCreatingDemo}
+              onClick={() => setIsModalOpen(true)}
               className="relative group overflow-hidden px-5 py-2.5 rounded-2xl btn-neon-primary flex items-center gap-2 text-slate-950 font-extrabold text-xs shadow-[0_0_25px_rgba(0,243,255,0.4)]"
             >
-              {isConnecting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
-                  <span>Connecting Freighter...</span>
-                </>
-              ) : (
-                <>
-                  <Wallet className="w-4 h-4 text-slate-950 stroke-[2.5]" />
-                  <span>Connect Freighter Wallet</span>
-                </>
-              )}
-            </motion.button>
-
-            {/* Secondary Option: Generate Instant Demo Testnet Wallet */}
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={handleCreateDemoWallet}
-              disabled={isConnecting || isCreatingDemo}
-              className="px-4 py-2.5 rounded-2xl bg-white/5 hover:bg-white/10 text-cyan-300 border border-cyan-500/30 text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
-              title="Create temporary Testnet wallet funded with 10,000 XLM for testing"
-            >
-              {isCreatingDemo ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-cyan-400" />
-              ) : (
-                <Key className="w-3.5 h-3.5 text-cyan-400" />
-              )}
-              <span className="hidden sm:inline">Demo Testnet Wallet</span>
+              <Wallet className="w-4 h-4 text-slate-950 stroke-[2.5]" />
+              <span>Connect Wallet</span>
             </motion.button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {errorMsg && (
-        <motion.div
-          initial={{ opacity: 0, y: 5 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="absolute top-full mt-2 right-0 text-xs text-rose-300 bg-rose-950/90 border border-rose-500/50 p-3 rounded-2xl shadow-xl z-50 max-w-sm flex items-start gap-2 backdrop-blur-md"
-        >
-          <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <span className="font-bold block">{errorMsg}</span>
-            <p className="text-[10px] text-slate-300">
-              Tip: Click <strong>"Demo Testnet Wallet"</strong> button to test with an instant funded Testnet account.
-            </p>
+      {/* Wallet Options Selection Modal (Minimum 2+ Wallet Options Available) */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 15 }}
+              className="relative w-full max-w-md p-6 rounded-3xl glass-panel border border-cyan-500/40 shadow-[0_0_50px_rgba(0,243,255,0.2)] space-y-6"
+            >
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                    <Wallet className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-space font-bold text-lg text-white">Select Wallet Option</h3>
+                    <p className="text-xs text-slate-400">Choose your preferred Stellar Testnet wallet</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/10 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Wallet Options List */}
+              <div className="space-y-3">
+                {/* Option 1: Freighter Wallet Extension */}
+                <button
+                  onClick={handleConnectFreighter}
+                  disabled={isConnecting}
+                  className="w-full p-4 rounded-2xl bg-slate-900/90 hover:bg-cyan-500/10 border border-white/10 hover:border-cyan-500/40 text-left transition-all flex items-center justify-between group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-300 font-bold">
+                      FW
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-sm text-white group-hover:text-cyan-300 transition-colors">
+                          Freighter Wallet
+                        </span>
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                          RECOMMENDED
+                        </span>
+                      </div>
+                      <span className="text-xs text-slate-400">Official Stellar Browser Extension</span>
+                    </div>
+                  </div>
+                  {isConnecting ? (
+                    <Loader2 className="w-5 h-5 animate-spin text-cyan-400" />
+                  ) : (
+                    <CheckCircle2 className="w-5 h-5 text-cyan-400/40 group-hover:text-cyan-400 transition-colors" />
+                  )}
+                </button>
+
+                {/* Option 2: Instant Demo Testnet Faucet Wallet */}
+                <button
+                  onClick={handleCreateDemoWallet}
+                  disabled={isCreatingDemo}
+                  className="w-full p-4 rounded-2xl bg-slate-900/90 hover:bg-purple-500/10 border border-white/10 hover:border-purple-500/40 text-left transition-all flex items-center justify-between group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300 font-bold">
+                      <Key className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-sm text-white group-hover:text-purple-300 transition-colors">
+                          Demo Testnet Wallet
+                        </span>
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-mono bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                          INSTANT FAUCET
+                        </span>
+                      </div>
+                      <span className="text-xs text-slate-400">Pre-funded with 10,000 Testnet XLM</span>
+                    </div>
+                  </div>
+                  {isCreatingDemo ? (
+                    <Loader2 className="w-5 h-5 animate-spin text-purple-400" />
+                  ) : (
+                    <CheckCircle2 className="w-5 h-5 text-purple-400/40 group-hover:text-purple-400 transition-colors" />
+                  )}
+                </button>
+
+                {/* Option 3: Albedo Web Wallet */}
+                <button
+                  onClick={() => {
+                    alert("Albedo Web Wallet: Connect via https://albedo.link on Stellar Testnet.");
+                  }}
+                  className="w-full p-4 rounded-2xl bg-slate-900/90 hover:bg-emerald-500/10 border border-white/10 hover:border-emerald-500/40 text-left transition-all flex items-center justify-between group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-300 font-bold">
+                      <Globe className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-sm text-white group-hover:text-emerald-300 transition-colors">
+                          Albedo Web Wallet
+                        </span>
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                          WEB DELEGATE
+                        </span>
+                      </div>
+                      <span className="text-xs text-slate-400">Web-based signature provider for Stellar</span>
+                    </div>
+                  </div>
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400/40 group-hover:text-emerald-400 transition-colors" />
+                </button>
+              </div>
+
+              {errorMsg && (
+                <div className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+                  <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0" />
+                  <span>{errorMsg}</span>
+                </div>
+              )}
+            </motion.div>
           </div>
-          <button
-            onClick={() => setErrorMsg(null)}
-            className="text-slate-400 hover:text-white ml-2 text-xs"
-          >
-            ✕
-          </button>
-        </motion.div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 }

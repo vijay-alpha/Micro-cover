@@ -57,20 +57,24 @@ MicroCover is a decentralized parametric micro-insurance protocol built on the *
 #### 🌐 Live Vercel Deployment Link
 - **Vercel Live Application**: [https://micro-cover.vercel.app/](https://micro-cover.vercel.app/)
 
-#### 1. Deployed Smart Contract Address (Stellar Testnet)
+#### 1. Screenshot: Wallet Options Available
+<img width="1917" height="1039" alt="Wallet Options Available" src="https://github.com/user-attachments/assets/46ea8862-116d-47e2-812d-32f309fe3d48" />
+*Displays 3 distinct wallet connection options available in the dApp: 1. Freighter Wallet Extension, 2. Demo Testnet Faucet Wallet (Instant 10,000 XLM), and 3. Albedo Web Delegate Wallet.*
+
+#### 2. Deployed Smart Contract Address (Stellar Testnet)
 - **Deployed Contract ID**: `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`
 - **Explorer Verification Link**: [View Deployed Soroban Contract on Stellar Expert Explorer](https://stellar.expert/explorer/testnet/contract/CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC)
 
-#### 2. Contract Call Transaction Hash
+#### 3. Contract Call Transaction Hash
 - **Sample Contract Call Tx Hash**: `b48047271c00742b74bf10f3177cf3d64ef3c1caaf618d07d0cc60da2e8e57b3`
 - **Explorer Verification Link**: [View Contract Call Transaction on Stellar Expert Explorer](https://stellar.expert/explorer/testnet/tx/b48047271c00742b74bf10f3177cf3d64ef3c1caaf618d07d0cc60da2e8e57b3)
 
-#### 3. 3 Error Types Handled
+#### 4. 3 Error Types Handled
 1. **ERROR TYPE 1: USER_REJECTION**: User declines or closes the Freighter signature popup window.
 2. **ERROR TYPE 2: INSUFFICIENT_FUNDS**: Account balance is lower than required premium (triggers Friendbot Faucet guidance).
 3. **ERROR TYPE 3: CONTRACT_NETWORK_FAILURE**: Soroban smart contract execution error or Horizon Testnet timeout.
 
-#### 4. Real-Time Soroban Contract Event Stream
+#### 5. Real-Time Soroban Contract Event Stream
 - Live contract event listener rendering `soroban::policy_purchased`, `soroban::parametric_oracle_verified`, and `soroban::claim_settled_payout` topics.
 
 ---
