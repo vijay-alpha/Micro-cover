@@ -137,7 +137,7 @@ npm run start
 ### 📸 Level 3 Submission Screenshots
 
 #### 1. Mobile Responsive UI
-<img width="1080" height="2346" alt="Screenshot_20260802-175822" src="https://github.com/user-attachments/assets/652acfb4-d2e3-48f9-92f9-028e58154bed" />
+<img width="200" height="400" alt="Screenshot_20260802-175822" src="https://github.com/user-attachments/assets/652acfb4-d2e3-48f9-92f9-028e58154bed" />
 *Shows fully responsive mobile layout with mobile navigation drawer, touch controls, and optimized card grids for mobile viewports.*
 
 #### 2. CI/CD Pipeline Running (GitHub Actions)
