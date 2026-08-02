@@ -23,8 +23,10 @@ export const STELLAR_EXPERT_TESTNET_CONTRACT_URL = "https://stellar.expert/explo
 
 // Live Deployed Soroban Smart Contract Address indexed on Stellar Expert Testnet
 export const DEPLOYED_SOROBAN_CONTRACT_ID = "CDFLDXBQJDIDJP42YUW266WCKCRLMVLWZIWI3ARPK7QIMW4RAJXH6NWS";
-export const PROTOCOL_INSURANCE_POOL_ADDRESS = "GBWVMYMYP3XXZHRCMUDRZAN3SZRKL65WEKFLIWBSBOY22OM4QEBTYC23"; 
-export const FALLBACK_POOL_ADDRESS = "GAOKREOZ2KOOPBXYSL3NUWN5GUZDDXM32B5ZQTWZ5OHJLFFNVPTBTWM2";
+
+// User's Own Freighter Wallet Address as Protocol Insurance Pool Receiver Account
+export const PROTOCOL_INSURANCE_POOL_ADDRESS = "GBI6SHW4CXUPCRXGJWCSZJLBDRVNLDF2TJJV2V6VDEFROVOUD6ATNBU6"; 
+export const FALLBACK_POOL_ADDRESS = "GBI6SHW4CXUPCRXGJWCSZJLBDRVNLDF2TJJV2V6VDEFROVOUD6ATNBU6";
 
 // Initialize Horizon Server instance for Stellar Testnet
 export const horizonServer = new Horizon.Server(HORIZON_TESTNET_URL);
@@ -248,7 +250,6 @@ export async function fetchHorizonOnChainHistory(walletAddress: string): Promise
         const paymentOp = record as any;
         if (
           paymentOp.to === PROTOCOL_INSURANCE_POOL_ADDRESS ||
-          paymentOp.to === FALLBACK_POOL_ADDRESS ||
           paymentOp.from === walletAddress
         ) {
           const amountFloat = parseFloat(paymentOp.amount || "0").toFixed(2);
@@ -297,7 +298,7 @@ export async function fetchHorizonOnChainHistory(walletAddress: string): Promise
 
 /**
  * Level 2 Requirement: Contract Called from Frontend.
- * Build, Sign, and Submit a Micro-Insurance Premium Payment Transaction to Soroban Protocol Vault Contract.
+ * Build, Sign, and Submit a Micro-Insurance Premium Payment Transaction to User's Protocol Pool Account.
  */
 export async function payPolicyPremium(
   senderAddress: string,
@@ -332,11 +333,8 @@ export async function payPolicyPremium(
       throw err;
     }
 
-    // 2. Select valid destination address for Soroban Vault Contract Execution
-    const destinationAddress =
-      senderAddress === PROTOCOL_INSURANCE_POOL_ADDRESS
-        ? FALLBACK_POOL_ADDRESS
-        : PROTOCOL_INSURANCE_POOL_ADDRESS;
+    // 2. Destination address is set to User's Protocol Pool Account: GBI6SHW4CXUPCRXGJWCSZJLBDRVNLDF2TJJV2V6VDEFROVOUD6ATNBU6
+    const destinationAddress = PROTOCOL_INSURANCE_POOL_ADDRESS;
 
     // 3. Build Contract Payment Transaction
     const memoText = policyName.slice(0, 28);
