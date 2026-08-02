@@ -3,7 +3,7 @@
 import React from "react";
 import { Shield, Sparkles, Activity, Cpu, ExternalLink } from "lucide-react";
 import WalletConnect from "./WalletConnect";
-import { PROTOCOL_INSURANCE_POOL_ADDRESS, STELLAR_EXPERT_TESTNET_ACCOUNT_URL } from "@/lib/stellar";
+import { DEPLOYED_SOROBAN_CONTRACT_ID, STELLAR_EXPERT_TESTNET_CONTRACT_URL } from "@/lib/stellar";
 
 interface NavbarProps {
   walletAddress: string | null;
@@ -43,17 +43,17 @@ export default function Navbar({
           </div>
         </div>
 
-        {/* Center: Network & User Vault Account Badge */}
+        {/* Center: Network & Soroban Contract Badge */}
         <div className="hidden lg:flex items-center gap-3">
           <a
-            href={`${STELLAR_EXPERT_TESTNET_ACCOUNT_URL}${PROTOCOL_INSURANCE_POOL_ADDRESS}`}
+            href={`${STELLAR_EXPERT_TESTNET_CONTRACT_URL}${DEPLOYED_SOROBAN_CONTRACT_ID}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-mono transition-colors"
-            title="View User Protocol Vault Account on Stellar Expert Explorer"
+            title="View Deployed Soroban Smart Contract on Stellar Expert"
           >
             <Cpu className="w-3.5 h-3.5 text-purple-400" />
-            <span>Vault Pool: {PROTOCOL_INSURANCE_POOL_ADDRESS.slice(0, 6)}...{PROTOCOL_INSURANCE_POOL_ADDRESS.slice(-4)}</span>
+            <span>Contract: {DEPLOYED_SOROBAN_CONTRACT_ID.slice(0, 6)}...{DEPLOYED_SOROBAN_CONTRACT_ID.slice(-4)}</span>
             <ExternalLink className="w-3 h-3 text-purple-400" />
           </a>
 

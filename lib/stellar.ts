@@ -22,8 +22,8 @@ export const STELLAR_EXPERT_TESTNET_TX_URL = "https://stellar.expert/explorer/te
 export const STELLAR_EXPERT_TESTNET_CONTRACT_URL = "https://stellar.expert/explorer/testnet/contract/";
 export const STELLAR_EXPERT_TESTNET_ACCOUNT_URL = "https://stellar.expert/explorer/testnet/account/";
 
-// Live Deployed Soroban Smart Contract Address indexed on Stellar Expert Testnet
-export const DEPLOYED_SOROBAN_CONTRACT_ID = "CDFLDXBQJDIDJP42YUW266WCKCRLMVLWZIWI3ARPK7QIMW4RAJXH6NWS";
+// Deployed Soroban Smart Contract Address for Level 2 Submission
+export const DEPLOYED_SOROBAN_CONTRACT_ID = "CAOKREOZ2KOOPBXYSL3NUWN5GUZDDXM32B5ZQTWZ5OHJLFFNVPTBTWM2";
 
 // User's Own Freighter Wallet Address as Protocol Insurance Pool Receiver Account
 export const PROTOCOL_INSURANCE_POOL_ADDRESS = "GBI6SHW4CXUPCRXGJWCSZJLBDRVNLDF2TJJV2V6VDEFROVOUD6ATNBU6"; 

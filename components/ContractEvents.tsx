@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Activity, Cpu, ExternalLink, Zap, RefreshCw } from "lucide-react";
-import { PROTOCOL_INSURANCE_POOL_ADDRESS, STELLAR_EXPERT_TESTNET_ACCOUNT_URL } from "@/lib/stellar";
+import { Activity, ExternalLink, Zap, RefreshCw } from "lucide-react";
+import { DEPLOYED_SOROBAN_CONTRACT_ID, STELLAR_EXPERT_TESTNET_CONTRACT_URL } from "@/lib/stellar";
 
 export interface ContractEventItem {
   id: string;
@@ -85,12 +85,12 @@ export default function ContractEvents() {
           </button>
 
           <a
-            href={`${STELLAR_EXPERT_TESTNET_ACCOUNT_URL}${PROTOCOL_INSURANCE_POOL_ADDRESS}`}
+            href={`${STELLAR_EXPERT_TESTNET_CONTRACT_URL}${DEPLOYED_SOROBAN_CONTRACT_ID}`}
             target="_blank"
             rel="noopener noreferrer"
             className="px-3 py-2 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 font-mono text-xs font-bold transition-all flex items-center gap-1.5"
           >
-            <span>User Pool: {PROTOCOL_INSURANCE_POOL_ADDRESS.slice(0, 6)}...{PROTOCOL_INSURANCE_POOL_ADDRESS.slice(-4)}</span>
+            <span>Contract: {DEPLOYED_SOROBAN_CONTRACT_ID.slice(0, 6)}...{DEPLOYED_SOROBAN_CONTRACT_ID.slice(-4)}</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
         </div>
