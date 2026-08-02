@@ -2,11 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Wallet, LogOut, ShieldAlert, Loader2, Key, Globe, X, CheckCircle2 } from "lucide-react";
+import { Wallet, LogOut, ShieldAlert, Loader2, Globe, X, CheckCircle2 } from "lucide-react";
 import {
   isFreighterInstalled,
   connectFreighterWallet,
-  createDemoTestnetWallet,
 } from "@/lib/stellar";
 
 interface WalletConnectProps {
@@ -22,10 +21,8 @@ export default function WalletConnect({
 }: WalletConnectProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
-  const [isCreatingDemo, setIsCreatingDemo] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isInstalled, setIsInstalled] = useState<boolean | null>(null);
-  const [isDemoWallet, setIsDemoWallet] = useState(false);
 
   useEffect(() => {
     async function checkInstallationAndAutoConnect() {
@@ -33,18 +30,14 @@ export default function WalletConnect({
       setIsInstalled(installed);
 
       if (typeof window !== "undefined") {
-        // If user explicitly clicked Disconnect, do NOT auto-connect on page refresh
         const userDisconnected = localStorage.getItem("microcover_user_disconnected");
         if (userDisconnected === "true") {
           return;
         }
 
         const savedWallet = localStorage.getItem("microcover_active_wallet");
-        const savedSecret = localStorage.getItem("microcover_demo_secret");
-
         if (savedWallet) {
-          if (savedSecret) setIsDemoWallet(true);
-          onConnect(savedWallet, savedSecret || undefined);
+          onConnect(savedWallet);
         }
       }
     }
@@ -59,10 +52,8 @@ export default function WalletConnect({
       if (result.address) {
         if (typeof window !== "undefined") {
           localStorage.setItem("microcover_active_wallet", result.address);
-          localStorage.removeItem("microcover_demo_secret");
           localStorage.removeItem("microcover_user_disconnected");
         }
-        setIsDemoWallet(false);
         onConnect(result.address);
         setIsModalOpen(false);
       } else {
@@ -76,35 +67,36 @@ export default function WalletConnect({
     }
   };
 
-  const handleCreateDemoWallet = async () => {
-    setIsCreatingDemo(true);
+  const handleConnectAlbedo = async () => {
+    setIsConnecting(true);
     setErrorMsg(null);
     try {
-      const demo = await createDemoTestnetWallet();
-      if (typeof window !== "undefined") {
-        localStorage.setItem("microcover_active_wallet", demo.publicKey);
-        localStorage.setItem("microcover_demo_secret", demo.secretKey);
-        localStorage.removeItem("microcover_user_disconnected");
+      if (typeof window !== "undefined" && (window as any).albedo) {
+        const res = await (window as any).albedo.publicKey();
+        if (res && res.pubkey) {
+          localStorage.setItem("microcover_active_wallet", res.pubkey);
+          localStorage.removeItem("microcover_user_disconnected");
+          onConnect(res.pubkey);
+          setIsModalOpen(false);
+          return;
+        }
       }
-      setIsDemoWallet(true);
-      onConnect(demo.publicKey, demo.secretKey);
-      setIsModalOpen(false);
+      // Fallback redirect or notice if Albedo script not loaded locally
+      window.open("https://albedo.link", "_blank");
+      setErrorMsg("Albedo web portal opened. Approve connection on albedo.link.");
     } catch (err: any) {
-      console.error("Demo wallet error:", err);
-      setErrorMsg("Failed to generate Demo Testnet Wallet.");
+      console.error("Albedo connection error:", err);
+      setErrorMsg(err?.message || "Albedo connection failed.");
     } finally {
-      setIsCreatingDemo(false);
+      setIsConnecting(false);
     }
   };
 
   const handleDisconnect = () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("microcover_active_wallet");
-      localStorage.removeItem("microcover_demo_secret");
-      // Store explicit user disconnect flag to prevent auto-reconnect on refresh
       localStorage.setItem("microcover_user_disconnected", "true");
     }
-    setIsDemoWallet(false);
     onDisconnect();
   };
 
@@ -125,88 +117,90 @@ export default function WalletConnect({
   };
 
   return (
-    <div className="relative">
-      <AnimatePresence mode="wait">
-        {walletAddress ? (
-          <motion.div
-            key="connected"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="flex items-center gap-3"
-          >
-            {/* Address Badge with Dynamic Identicon Avatar */}
-            <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-slate-900/90 border border-cyan-500/50 shadow-[0_0_20px_rgba(0,243,255,0.25)] backdrop-blur-md">
-              <div
-                className={`w-6 h-6 rounded-full bg-gradient-to-tr ${getAvatarGradient(
-                  walletAddress
-                )} flex items-center justify-center text-[10px] font-bold text-black shadow-inner`}
+    <>
+      <div className="relative">
+        <AnimatePresence mode="wait">
+          {walletAddress ? (
+            <motion.div
+              key="connected"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="flex items-center gap-3"
+            >
+              {/* Address Badge with Dynamic Identicon Avatar */}
+              <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-slate-900/90 border border-cyan-500/50 shadow-[0_0_20px_rgba(0,243,255,0.25)] backdrop-blur-md">
+                <div
+                  className={`w-6 h-6 rounded-full bg-gradient-to-tr ${getAvatarGradient(
+                    walletAddress
+                  )} flex items-center justify-center text-[10px] font-bold text-black shadow-inner`}
+                >
+                  {walletAddress.slice(0, 2)}
+                </div>
+
+                <div className="flex flex-col">
+                  <span className="font-mono text-xs font-bold tracking-wider text-cyan-300">
+                    {truncateAddress(walletAddress)}
+                  </span>
+                  <span className="text-[9px] font-semibold text-emerald-400 flex items-center gap-1">
+                    Stellar Wallet Connected
+                  </span>
+                </div>
+
+                {/* Active Pulse Dot */}
+                <span className="relative flex h-2 w-2 ml-1">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+              </div>
+
+              {/* Disconnect Button */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleDisconnect}
+                className="p-2.5 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 transition-all duration-200"
+                title="Disconnect Wallet"
               >
-                {walletAddress.slice(0, 2)}
-              </div>
-
-              <div className="flex flex-col">
-                <span className="font-mono text-xs font-bold tracking-wider text-cyan-300">
-                  {truncateAddress(walletAddress)}
-                </span>
-                <span className="text-[9px] font-semibold text-emerald-400 flex items-center gap-1">
-                  {isDemoWallet ? "Demo Testnet Wallet" : "Freighter Wallet"}
-                </span>
-              </div>
-
-              {/* Active Pulse Dot */}
-              <span className="relative flex h-2 w-2 ml-1">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-            </div>
-
-            {/* Disconnect Button */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleDisconnect}
-              className="p-2.5 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 transition-all duration-200"
-              title="Disconnect Wallet"
+                <LogOut className="w-4 h-4" />
+              </motion.button>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="disconnected"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="flex items-center gap-3"
             >
-              <LogOut className="w-4 h-4" />
-            </motion.button>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="disconnected"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="flex items-center gap-3"
-          >
-            {/* Primary Connect Wallet Button */}
-            <motion.button
-              id="connect-wallet-btn"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => setIsModalOpen(true)}
-              className="relative group overflow-hidden px-5 py-2.5 rounded-2xl btn-neon-primary flex items-center gap-2 text-slate-950 font-extrabold text-xs shadow-[0_0_25px_rgba(0,243,255,0.4)]"
-            >
-              <Wallet className="w-4 h-4 text-slate-950 stroke-[2.5]" />
-              <span>Connect Wallet</span>
-            </motion.button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              {/* Primary Connect Wallet Button */}
+              <motion.button
+                id="connect-wallet-btn"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setIsModalOpen(true)}
+                className="relative group overflow-hidden px-5 py-2.5 rounded-2xl btn-neon-primary flex items-center gap-2 text-slate-950 font-extrabold text-xs shadow-[0_0_25px_rgba(0,243,255,0.4)]"
+              >
+                <Wallet className="w-4 h-4 text-slate-950 stroke-[2.5]" />
+                <span>Connect Wallet</span>
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
-      {/* Wallet Options Selection Modal (Minimum 2+ Wallet Options Available) */}
+      {/* Wallet Options Centered Overlay Modal (2 Real Stellar Wallet Options: Freighter & Albedo) */}
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 15 }}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 15 }}
-              className="relative w-full max-w-md p-6 rounded-3xl glass-panel border border-cyan-500/40 shadow-[0_0_50px_rgba(0,243,255,0.2)] space-y-6"
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="relative w-full max-w-md p-6 sm:p-8 rounded-3xl glass-panel border border-cyan-500/40 shadow-[0_0_50px_rgba(0,243,255,0.25)] space-y-6"
             >
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-3">
                   <div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
                     <Wallet className="w-5 h-5" />
                   </div>
@@ -217,13 +211,13 @@ export default function WalletConnect({
                 </div>
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/10 transition-colors"
+                  className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/10 transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              {/* Wallet Options List */}
+              {/* Wallet Options List (Freighter & Albedo) */}
               <div className="space-y-3">
                 {/* Option 1: Freighter Wallet Extension */}
                 <button
@@ -232,7 +226,7 @@ export default function WalletConnect({
                   className="w-full p-4 rounded-2xl bg-slate-900/90 hover:bg-cyan-500/10 border border-white/10 hover:border-cyan-500/40 text-left transition-all flex items-center justify-between group"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-300 font-bold">
+                    <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-300 font-bold text-sm">
                       FW
                     </div>
                     <div>
@@ -240,7 +234,7 @@ export default function WalletConnect({
                         <span className="font-bold text-sm text-white group-hover:text-cyan-300 transition-colors">
                           Freighter Wallet
                         </span>
-                        <span className="px-2 py-0.5 rounded-full text-[9px] font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
                           RECOMMENDED
                         </span>
                       </div>
@@ -254,59 +248,29 @@ export default function WalletConnect({
                   )}
                 </button>
 
-                {/* Option 2: Instant Demo Testnet Faucet Wallet */}
+                {/* Option 2: Albedo Web Wallet */}
                 <button
-                  onClick={handleCreateDemoWallet}
-                  disabled={isCreatingDemo}
+                  onClick={handleConnectAlbedo}
+                  disabled={isConnecting}
                   className="w-full p-4 rounded-2xl bg-slate-900/90 hover:bg-purple-500/10 border border-white/10 hover:border-purple-500/40 text-left transition-all flex items-center justify-between group"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300 font-bold">
-                      <Key className="w-5 h-5" />
+                      <Globe className="w-5 h-5 text-purple-400" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-sm text-white group-hover:text-purple-300 transition-colors">
-                          Demo Testnet Wallet
-                        </span>
-                        <span className="px-2 py-0.5 rounded-full text-[9px] font-mono bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                          INSTANT FAUCET
-                        </span>
-                      </div>
-                      <span className="text-xs text-slate-400">Pre-funded with 10,000 Testnet XLM</span>
-                    </div>
-                  </div>
-                  {isCreatingDemo ? (
-                    <Loader2 className="w-5 h-5 animate-spin text-purple-400" />
-                  ) : (
-                    <CheckCircle2 className="w-5 h-5 text-purple-400/40 group-hover:text-purple-400 transition-colors" />
-                  )}
-                </button>
-
-                {/* Option 3: Albedo Web Wallet */}
-                <button
-                  onClick={() => {
-                    alert("Albedo Web Wallet: Connect via https://albedo.link on Stellar Testnet.");
-                  }}
-                  className="w-full p-4 rounded-2xl bg-slate-900/90 hover:bg-emerald-500/10 border border-white/10 hover:border-emerald-500/40 text-left transition-all flex items-center justify-between group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-300 font-bold">
-                      <Globe className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-white group-hover:text-emerald-300 transition-colors">
                           Albedo Web Wallet
                         </span>
-                        <span className="px-2 py-0.5 rounded-full text-[9px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
                           WEB DELEGATE
                         </span>
                       </div>
                       <span className="text-xs text-slate-400">Web-based signature provider for Stellar</span>
                     </div>
                   </div>
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400/40 group-hover:text-emerald-400 transition-colors" />
+                  <CheckCircle2 className="w-5 h-5 text-purple-400/40 group-hover:text-purple-400 transition-colors" />
                 </button>
               </div>
 
@@ -320,6 +284,6 @@ export default function WalletConnect({
           </div>
         )}
       </AnimatePresence>
-    </div>
+    </>
   );
 }

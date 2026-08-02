@@ -59,7 +59,7 @@ MicroCover is a decentralized parametric micro-insurance protocol built on the *
 
 #### 1. Screenshot: Wallet Options Available
 <img width="1917" height="1039" alt="Wallet Options Available" src="https://github.com/user-attachments/assets/46ea8862-116d-47e2-812d-32f309fe3d48" />
-*Displays 3 distinct wallet connection options available in the dApp: 1. Freighter Wallet Extension, 2. Demo Testnet Faucet Wallet (Instant 10,000 XLM), and 3. Albedo Web Delegate Wallet.*
+*Displays 2 distinct wallet options available in the dApp: 1. Freighter Wallet Extension, and 2. Albedo Web Delegate Wallet.*
 
 #### 2. Deployed Smart Contract Address (Stellar Testnet)
 - **Deployed Contract ID**: `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`
