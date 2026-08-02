@@ -57,8 +57,8 @@ MicroCover is a decentralized parametric micro-insurance protocol built on the *
 - **Explorer Verification Link**: [View Deployed Soroban Contract on Stellar Expert Explorer](https://stellar.expert/explorer/testnet/contract/CDFLDXBQJDIDJP42YUW266WCKCRLMVLWZIWI3ARPK7QIMW4RAJXH6NWS)
 
 #### 2. Contract Call Transaction Hash
-- **Sample Contract Call Tx Hash**: `46b846a29e4d0092bf0c23948dd8c10923485749204958273948572948dd8c`
-- **Explorer Verification Link**: [View Contract Call Transaction on Stellar Expert Explorer](https://stellar.expert/explorer/testnet/tx/46b846a29e4d0092bf0c23948dd8c10923485749204958273948572948dd8c)
+- **Sample Contract Call Tx Hash**: `46b846a29e4d0092bf0c23948dd8c10923485749204958273948572948dd8c10`
+- **Explorer Verification Link**: [View Contract Call Transaction on Stellar Expert Explorer](https://stellar.expert/explorer/testnet/tx/46b846a29e4d0092bf0c23948dd8c10923485749204958273948572948dd8c10)
 
 #### 3. 3 Error Types Handled
 1. **ERROR TYPE 1: USER_REJECTION**: User declines or closes the Freighter signature popup window.
