@@ -58,7 +58,7 @@ MicroCover is a decentralized parametric micro-insurance protocol built on the *
 - **Vercel Live Application**: [https://micro-cover.vercel.app/](https://micro-cover.vercel.app/)
 
 #### 1. Screenshot: Wallet Options Available
-<img width="1917" height="1039" alt="Wallet Options Available" src="https://github.com/user-attachments/assets/46ea8862-116d-47e2-812d-32f309fe3d48" />
+<img width="1915" height="1033" alt="{3F59F23D-20D4-47A0-8180-B5B3153E901F}" src="https://github.com/user-attachments/assets/f24c040c-6a82-4348-a59d-8a0d1c201787" />
 *Displays 2 distinct wallet options available in the dApp: 1. Freighter Wallet Extension, and 2. Albedo Web Delegate Wallet.*
 
 #### 2. Deployed Smart Contract Address (Stellar Testnet)
