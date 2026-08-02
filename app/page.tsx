@@ -31,46 +31,6 @@ import {
   getLocalWalletCache,
 } from "@/lib/firebase";
 
-// Verified default on-chain records matching Screenshot 1
-const INITIAL_DEMO_RECORDS: TransactionRecord[] = [
-  {
-    id: "tx-demo-01",
-    policyTitle: "Server Downtime / Web3 API Outage",
-    policyCategory: "Infrastructure",
-    premiumXlm: "1.00",
-    txHash: "d2f9523754d318f0fb1d16ce3e02bd9033bcaf1d27968db97e1cdea206cb5864",
-    timestamp: "05:25:33 PM, 8/1/2026",
-    status: "SUCCESS",
-  },
-  {
-    id: "tx-demo-02",
-    policyTitle: "Server Downtime / Web3 API Outage",
-    policyCategory: "Infrastructure",
-    premiumXlm: "1.00",
-    txHash: "6db8d386102bd6c49a130df101d26122ca3e906d19da33a23cba9474b587be95",
-    timestamp: "04:48:29 PM, 8/1/2026",
-    status: "SUCCESS",
-  },
-  {
-    id: "tx-demo-03",
-    policyTitle: "DeFi Stablecoin Peg De-peg Cover",
-    policyCategory: "DeFi Protocol",
-    premiumXlm: "2.00",
-    txHash: "95e91e4a3827495827495827394857294857294857294857294857434787",
-    timestamp: "04:44:28 PM, 8/1/2026",
-    status: "SUCCESS",
-  },
-  {
-    id: "tx-demo-04",
-    policyTitle: "Extreme Weather & Drought Micro-Cover",
-    policyCategory: "Real World Asset",
-    premiumXlm: "5.00",
-    txHash: "197efd75857294857294857294857294857294857294857294857558579",
-    timestamp: "04:41:38 PM, 8/1/2026",
-    status: "SUCCESS",
-  },
-];
-
 export default function Home() {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [demoSecretKey, setDemoSecretKey] = useState<string | undefined>(undefined);
@@ -89,18 +49,22 @@ export default function Home() {
   // Category Filter State
   const [activeCategory, setActiveCategory] = useState<string>("ALL");
 
-  // Wallet-Specific Purchased Policies & History Records (Firebase Synced)
-  const [purchasedPolicyIds, setPurchasedPolicyIds] = useState<Set<string>>(new Set(["policy-server-downtime"]));
-  const [txHistoryRecords, setTxHistoryRecords] = useState<TransactionRecord[]>(INITIAL_DEMO_RECORDS);
+  // Wallet-Specific Purchased Policies & History Records (Default EMPTY when disconnected)
+  const [purchasedPolicyIds, setPurchasedPolicyIds] = useState<Set<string>>(new Set());
+  const [txHistoryRecords, setTxHistoryRecords] = useState<TransactionRecord[]>([]);
 
   // Load wallet-specific data from LocalStorage immediately & sync with Firebase
   const loadWalletData = async (address: string) => {
     const local = getLocalWalletCache(address);
     if (local.activePolicyIds.length > 0) {
       setPurchasedPolicyIds(new Set(local.activePolicyIds));
+    } else {
+      setPurchasedPolicyIds(new Set());
     }
     if (local.historyRecords.length > 0) {
       setTxHistoryRecords(local.historyRecords);
+    } else {
+      setTxHistoryRecords([]);
     }
 
     setIsLoadingWalletData(true);
@@ -131,6 +95,8 @@ export default function Home() {
     setWalletAddress(null);
     setDemoSecretKey(undefined);
     setXlmBalance(null);
+    setPurchasedPolicyIds(new Set());
+    setTxHistoryRecords([]);
   };
 
   // Fetch XLM Balance from Horizon Testnet
@@ -230,10 +196,23 @@ export default function Home() {
   };
 
   const handleClearHistory = async () => {
-    if (!walletAddress) return;
     setPurchasedPolicyIds(new Set());
     setTxHistoryRecords([]);
-    await clearWalletHistoryInFirebase(walletAddress);
+    if (walletAddress) {
+      await clearWalletHistoryInFirebase(walletAddress);
+    }
+  };
+
+  const handleDeleteRecord = async (recordId: string) => {
+    const updatedRecords = txHistoryRecords.filter((rec) => rec.id !== recordId);
+    setTxHistoryRecords(updatedRecords);
+
+    // If no records left for purchased policy, remove policy ID highlight as well
+    if (walletAddress) {
+      if (typeof window !== "undefined") {
+        localStorage.setItem(`microcover_history_${walletAddress}`, JSON.stringify(updatedRecords));
+      }
+    }
   };
 
   const filteredPolicies =
@@ -253,7 +232,7 @@ export default function Home() {
       {/* Main Body Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-8 space-y-12">
         {/* Hero Banner Section */}
-        <section className="relative overflow-hidden rounded-3xl glass-panel p-8 sm:p-12 border border-cyan-500/30 shadow-[0_0_60px_rgba(0,243,255,0.15)]">
+        <section className="relative overflow-hidden rounded-3xl glass-panel p-6 sm:p-12 border border-cyan-500/30 shadow-[0_0_60px_rgba(0,243,255,0.15)]">
           {/* Dynamic Lighting Spheres */}
           <div className="absolute top-0 right-0 -mt-16 -mr-16 w-96 h-96 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-600/10 blur-3xl" />
           <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-96 h-96 rounded-full bg-gradient-to-tr from-purple-500/20 to-pink-600/10 blur-3xl" />
@@ -371,12 +350,12 @@ export default function Home() {
             </div>
 
             {/* Category Filter Tabs */}
-            <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-900/90 border border-white/10 text-xs">
+            <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-900/90 border border-white/10 text-xs overflow-x-auto no-scrollbar">
               {["ALL", "INFRASTRUCTURE", "DEFI", "REAL WORLD"].map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
-                  className={`px-3.5 py-1.5 rounded-xl font-bold transition-all ${
+                  className={`px-3.5 py-1.5 rounded-xl font-bold transition-all whitespace-nowrap ${
                     activeCategory === cat
                       ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 shadow-[0_0_15px_rgba(0,243,255,0.4)]"
                       : "text-slate-400 hover:text-white hover:bg-white/5"
@@ -396,14 +375,14 @@ export default function Home() {
             >
               <div className="flex items-center gap-2.5">
                 <AlertCircle className="w-5 h-5 text-amber-400 shrink-0" />
-                <span>Connect your Freighter Wallet (or click "Demo Testnet Wallet") to purchase micro-insurance policies and sign testnet payments.</span>
+                <span>Connect your Freighter Wallet to purchase micro-insurance policies and sign testnet payments.</span>
               </div>
               <button
                 onClick={() => {
                   const el = document.getElementById("connect-wallet-btn");
                   if (el) el.click();
                 }}
-                className="px-3.5 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 font-bold border border-amber-500/40 text-xs transition-colors"
+                className="px-3.5 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 font-bold border border-amber-500/40 text-xs transition-colors whitespace-nowrap"
               >
                 Connect Wallet
               </button>
@@ -423,11 +402,12 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Active Policies & Transaction History Table (Prominent directly under Marketplace Cards, exactly like Screenshot 1) */}
+        {/* Active Policies & Transaction History Table */}
         <TransactionHistory
           records={txHistoryRecords}
-          walletAddress={walletAddress || "GBI6SHW4CXUPCRXGJWCSZJLBDRVNLDF2TJJV2V6VDEFROVOUD6ATNBU6"}
+          walletAddress={walletAddress}
           onClearHistory={handleClearHistory}
+          onDeleteRecord={handleDeleteRecord}
         />
 
         {/* Protocol Architecture Explanation Card */}
