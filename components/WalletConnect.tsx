@@ -191,7 +191,7 @@ export default function WalletConnect({
         </AnimatePresence>
       </div>
 
-      {/* React Portal: Render Wallet Options Modal directly on document.body for 100% viewport centering */}
+      {/* React Portal: Render Wallet Options Modal directly on document.body for 100% viewport centering on Vercel */}
       {mounted &&
         createPortal(
           <AnimatePresence>
