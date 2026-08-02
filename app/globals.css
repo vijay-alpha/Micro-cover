@@ -15,6 +15,7 @@ body {
   color: #f8fafc;
   overflow-x: hidden;
   min-height: 100vh;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Glassmorphism & 3D Depth Utilities */
@@ -128,7 +129,8 @@ body {
 
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: #020617;
@@ -139,4 +141,12 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 243, 255, 0.8);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
