@@ -95,7 +95,7 @@ npm run start
 - **Vercel Live Application**: [https://micro-cover.vercel.app/](https://micro-cover.vercel.app/)
 
 #### 1. Screenshot: Wallet Options Available
-<img width="1917" height="1039" alt="Wallet Options Available" src="https://github.com/user-attachments/assets/46ea8862-116d-47e2-812d-32f309fe3d48" />
+<img width="1920" height="1034" alt="{20B870B0-CF00-48DC-99E2-B6F9E85637A0}" src="https://github.com/user-attachments/assets/64f4f57d-8474-4b6a-96d8-c9634b1f99c1" />
 *Displays 2 distinct wallet options available in the dApp: 1. Freighter Wallet Extension, and 2. Albedo Web Delegate Wallet.*
 
 #### 2. Deployed Smart Contract Address (Stellar Testnet)
