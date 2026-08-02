@@ -8,6 +8,12 @@ MicroCover is a decentralized parametric micro-insurance protocol built on the *
 
 ---
 
+## 🔗 Quick Links
+- 🌐 **Live Production DApp**: [https://micro-cover.vercel.app/](https://micro-cover.vercel.app/)
+- 🎥 **Walkthrough & Demo Video**: [Watch on YouTube](https://youtu.be/7UI7wKL7qZk?si=ps2jGcEQJL0QnL5s)
+
+---
+
 ## 🚀 How to Run Locally
 
 ### Prerequisites
@@ -132,7 +138,7 @@ npm run start
 - **Explorer Verification Link**: [View Contract Invocation Transaction on Stellar Expert Explorer](https://stellar.expert/explorer/testnet/tx/b48047271c00742b74bf10f3177cf3d64ef3c1caaf618d07d0cc60da2e8e57b3)
 
 #### 🎥 Demo Video Link (1–2 minutes)
-- **Protocol Walkthrough Video**: [Watch MicroCover Protocol Live Demo Video](https://www.youtube.com/watch?v=micro_cover_demo)
+- **Protocol Walkthrough Video**: [Watch on YouTube](https://youtu.be/7UI7wKL7qZk?si=ps2jGcEQJL0QnL5s)
 
 ### 📸 Level 3 Submission Screenshots
 
@@ -187,4 +193,4 @@ MicroCover/
 ---
 
 ## 📜 License
-Apache-2.0 License
+Distributed under the Apache-2.0 License. See the [LICENSE](LICENSE) file for more information.
