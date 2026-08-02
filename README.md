@@ -97,9 +97,6 @@ npm run start
 
 ### 🌟 Level 2 Requirements & Verification
 
-#### 🌐 Live Vercel Deployment Link
-- **Vercel Live Application**: [https://micro-cover.vercel.app/](https://micro-cover.vercel.app/)
-
 #### 1. Screenshot: Wallet Options Available
 <img width="1920" height="1034" alt="{20B870B0-CF00-48DC-99E2-B6F9E85637A0}" src="https://github.com/user-attachments/assets/64f4f57d-8474-4b6a-96d8-c9634b1f99c1" />
 *Displays 2 distinct wallet options available in the dApp: 1. Freighter Wallet Extension, and 2. Albedo Web Delegate Wallet.*
@@ -126,9 +123,6 @@ npm run start
 
 ### 🌟 Level 3 Requirements & Verification
 
-#### 🌐 Live Demo Link (Vercel Production)
-- **Live Vercel Application**: [https://micro-cover.vercel.app/](https://micro-cover.vercel.app/)
-
 #### 📜 Contract Deployment Address
 - **Deployed Soroban Contract ID**: `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`
 - **Explorer Verification Link**: [View Soroban Smart Contract on Stellar Expert Explorer](https://stellar.expert/explorer/testnet/contract/CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC)
@@ -136,9 +130,6 @@ npm run start
 #### ⚡ Transaction Hash for Contract Interaction
 - **Sample Contract Interaction Tx Hash**: `b48047271c00742b74bf10f3177cf3d64ef3c1caaf618d07d0cc60da2e8e57b3`
 - **Explorer Verification Link**: [View Contract Invocation Transaction on Stellar Expert Explorer](https://stellar.expert/explorer/testnet/tx/b48047271c00742b74bf10f3177cf3d64ef3c1caaf618d07d0cc60da2e8e57b3)
-
-#### 🎥 Demo Video Link (1–2 minutes)
-- **Protocol Walkthrough Video**: [Watch on YouTube](https://youtu.be/7UI7wKL7qZk?si=ps2jGcEQJL0QnL5s)
 
 ### 📸 Level 3 Submission Screenshots
 
