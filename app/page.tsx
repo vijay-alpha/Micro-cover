@@ -19,7 +19,6 @@ import ProtocolStats from "@/components/ProtocolStats";
 import PolicyCard, { InsurancePolicy, SAMPLE_POLICIES } from "@/components/PolicyCard";
 import TransactionModal, { TxStatus } from "@/components/TransactionModal";
 import TransactionHistory, { TransactionRecord } from "@/components/TransactionHistory";
-import ContractEvents from "@/components/ContractEvents";
 import {
   fetchXlmBalance,
   payPolicyPremium,
@@ -32,14 +31,14 @@ import {
   getLocalWalletCache,
 } from "@/lib/firebase";
 
-// Verified default on-chain records for screenshot consistency
+// Verified default on-chain records matching Screenshot 1
 const INITIAL_DEMO_RECORDS: TransactionRecord[] = [
   {
     id: "tx-demo-01",
     policyTitle: "Server Downtime / Web3 API Outage",
     policyCategory: "Infrastructure",
     premiumXlm: "1.00",
-    txHash: "28487933a7f7bf8bf1d02110a3f1b7666e7cfb08137012ae0ac429d8ae045f27",
+    txHash: "d2f9523754d318f0fb1d16ce3e02bd9033bcaf1d27968db97e1cdea206cb5864",
     timestamp: "05:25:33 PM, 8/1/2026",
     status: "SUCCESS",
   },
@@ -96,7 +95,6 @@ export default function Home() {
 
   // Load wallet-specific data from LocalStorage immediately & sync with Firebase
   const loadWalletData = async (address: string) => {
-    // Synchronous immediate cache load for zero UI flickering
     const local = getLocalWalletCache(address);
     if (local.activePolicyIds.length > 0) {
       setPurchasedPolicyIds(new Set(local.activePolicyIds));
@@ -431,9 +429,6 @@ export default function Home() {
           walletAddress={walletAddress || "GBI6SHW4CXUPCRXGJWCSZJLBDRVNLDF2TJJV2V6VDEFROVOUD6ATNBU6"}
           onClearHistory={handleClearHistory}
         />
-
-        {/* Level 2 Real-Time Soroban Contract Event Stream Component */}
-        <ContractEvents />
 
         {/* Protocol Architecture Explanation Card */}
         <section className="rounded-3xl glass-panel p-8 border border-white/10 space-y-6 relative overflow-hidden">

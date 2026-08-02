@@ -57,8 +57,8 @@ MicroCover is a decentralized parametric micro-insurance protocol built on the *
 - **Explorer Verification Link**: [View Deployed Soroban Contract on Stellar Expert Explorer](https://stellar.expert/explorer/testnet/contract/CDTHJL7GVPKX24UWLTRH4K6N2ETTLE2D6SJAKTSPJ7SYHA4NMQHAG66A)
 
 #### 2. Contract Call Transaction Hash
-- **Sample Contract Call Tx Hash**: `6db8d386102bd6c49a130df101d26122ca3e906d19da33a23cba9474b587be95`
-- **Explorer Verification Link**: [View Contract Call Transaction on Stellar Expert Explorer](https://stellar.expert/explorer/testnet/tx/6db8d386102bd6c49a130df101d26122ca3e906d19da33a23cba9474b587be95)
+- **Sample Contract Call Tx Hash**: `d2f9523754d318f0fb1d16ce3e02bd9033bcaf1d27968db97e1cdea206cb5864`
+- **Explorer Verification Link**: [View Contract Call Transaction on Stellar Expert Explorer](https://stellar.expert/explorer/testnet/tx/d2f9523754d318f0fb1d16ce3e02bd9033bcaf1d27968db97e1cdea206cb5864)
 
 #### 3. 3 Error Types Handled
 1. **ERROR TYPE 1: USER_REJECTION**: User declines or closes the Freighter signature popup window.
@@ -113,7 +113,6 @@ MicroCover/
 ├── components/
 │   ├── BackgroundVideo.tsx  # Pure HTML5 Canvas 3D Cyber Motion Engine
 │   ├── BalanceCard.tsx      # Horizon XLM balance display & Friendbot faucet
-│   ├── ContractEvents.tsx   # Real-time Soroban Smart Contract Event stream
 │   ├── Navbar.tsx           # Deployed contract badge, network status, & wallet connect
 │   ├── PolicyCard.tsx       # Parametric micro-insurance policy marketplace cards
 │   ├── ProtocolStats.tsx    # Metric cards (TVL, Active Covers, Claims Paid)
