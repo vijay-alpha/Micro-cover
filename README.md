@@ -1,8 +1,16 @@
 # 🛡️ MicroCover — Parametric Micro-Insurance Protocol on Stellar
 
-> **Decentralized Parametric Insurance Protocol on Stellar Testnet** | Built with Next.js (App Router), TypeScript, Tailwind CSS, Framer Motion, `@stellar/freighter-api`, `@stellar/stellar-sdk`, Firebase Firestore, and Soroban Smart Contracts.
+> **Decentralized Parametric Insurance Protocol on Stellar** | Built with Next.js (App Router), TypeScript, Tailwind CSS, Framer Motion, `@stellar/freighter-api`, `@stellar/stellar-sdk`, Firebase Firestore, and Soroban Smart Contracts.
 
-MicroCover is a decentralized parametric micro-insurance protocol built on the **Stellar Testnet**. It enables users to purchase low-cost micro-coverage policies (against Web3 RPC downtime, stablecoin de-pegging, and weather anomalies) with automated oracle triggers, Soroban smart contracts, and instant Horizon Testnet payouts.
+### 🔍 What is MicroCover?
+MicroCover is a decentralized, institutional-grade parametric micro-insurance protocol built on the **Stellar blockchain**. The protocol is designed to eliminate manual claims processing, paperwork, and payout delays by executing policy payouts automatically using Soroban smart contracts.
+
+### ⚙️ How it Works
+1. **Purchase Coverage**: Users select a micro-insurance policy (e.g., Web3 RPC downtime, stablecoin de-pegging, or weather drought events) and pay a premium (1–5 XLM) directly through Freighter Wallet or Albedo.
+2. **Oracle Monitoring**: Decoupled network oracles monitor feed parameters (node latency, peg values, weather API telemetry) in real time.
+3. **Parametric Trigger & Automated Payout**: If a metric crosses the policy threshold (e.g., RPC node is down for >10 mins or stablecoin drops below $0.98), the Soroban smart contract validates the trigger and disburses the claim payout instantly back to the policyholder's Stellar account without requiring manual approval.
+
+*Currently operating on **Stellar Testnet** for Level 3 verification, with architecture ready to scale directly onto **Stellar Mainnet**.*
 
 ---
 
