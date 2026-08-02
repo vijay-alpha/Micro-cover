@@ -12,7 +12,7 @@ import {
 
 interface WalletConnectProps {
   walletAddress: string | null;
-  onConnect: (address: string, secretKey?: string) => void;
+  onConnect: (address: string, secretKey?: string, type?: "freighter" | "albedo" | "demo") => void;
   onDisconnect: () => void;
 }
 
@@ -44,8 +44,9 @@ export default function WalletConnect({
         }
 
         const savedWallet = localStorage.getItem("microcover_active_wallet");
+        const savedType = localStorage.getItem("microcover_wallet_type") as "freighter" | "albedo" | "demo" || "freighter";
         if (savedWallet) {
-          onConnect(savedWallet);
+          onConnect(savedWallet, undefined, savedType);
         }
       }
     }
@@ -60,9 +61,10 @@ export default function WalletConnect({
       if (result.address) {
         if (typeof window !== "undefined") {
           localStorage.setItem("microcover_active_wallet", result.address);
+          localStorage.setItem("microcover_wallet_type", "freighter");
           localStorage.removeItem("microcover_user_disconnected");
         }
-        onConnect(result.address);
+        onConnect(result.address, undefined, "freighter");
         setIsModalOpen(false);
       } else {
         setErrorMsg(result.error || "Could not connect to Freighter Wallet.");
@@ -85,9 +87,10 @@ export default function WalletConnect({
       if (res && res.pubkey) {
         if (typeof window !== "undefined") {
           localStorage.setItem("microcover_active_wallet", res.pubkey);
+          localStorage.setItem("microcover_wallet_type", "albedo");
           localStorage.removeItem("microcover_user_disconnected");
         }
-        onConnect(res.pubkey);
+        onConnect(res.pubkey, undefined, "albedo");
         setIsModalOpen(false);
       } else {
         setErrorMsg("Could not retrieve account address from Albedo.");
@@ -110,9 +113,10 @@ export default function WalletConnect({
 
     if (typeof window !== "undefined") {
       localStorage.setItem("microcover_active_wallet", cleanAddr);
+      localStorage.setItem("microcover_wallet_type", "albedo");
       localStorage.removeItem("microcover_user_disconnected");
     }
-    onConnect(cleanAddr);
+    onConnect(cleanAddr, undefined, "albedo");
     setIsModalOpen(false);
     setShowAlbedoInput(false);
     setAlbedoInputAddress("");
@@ -121,6 +125,7 @@ export default function WalletConnect({
   const handleDisconnect = () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("microcover_active_wallet");
+      localStorage.removeItem("microcover_wallet_type");
       localStorage.setItem("microcover_user_disconnected", "true");
     }
     onDisconnect();

@@ -34,6 +34,7 @@ import {
 export default function Home() {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [demoSecretKey, setDemoSecretKey] = useState<string | undefined>(undefined);
+  const [walletType, setWalletType] = useState<"freighter" | "albedo" | "demo">("freighter");
   const [xlmBalance, setXlmBalance] = useState<string | null>(null);
   const [isLoadingBalance, setIsLoadingBalance] = useState(false);
   const [isLoadingWalletData, setIsLoadingWalletData] = useState(false);
@@ -84,9 +85,10 @@ export default function Home() {
   };
 
   // Handle Wallet Connection
-  const handleConnectWallet = async (address: string, secretKey?: string) => {
+  const handleConnectWallet = async (address: string, secretKey?: string, type?: "freighter" | "albedo" | "demo") => {
     setWalletAddress(address);
     setDemoSecretKey(secretKey);
+    setWalletType(type || (secretKey ? "demo" : "freighter"));
     loadBalance(address);
     loadWalletData(address);
   };
@@ -94,6 +96,7 @@ export default function Home() {
   const handleDisconnectWallet = () => {
     setWalletAddress(null);
     setDemoSecretKey(undefined);
+    setWalletType("freighter");
     setXlmBalance(null);
     setPurchasedPolicyIds(new Set());
     setTxHistoryRecords([]);
@@ -135,7 +138,8 @@ export default function Home() {
         walletAddress,
         policy.premiumXlm,
         policy.title,
-        demoSecretKey
+        demoSecretKey,
+        walletType
       );
 
       if (result.success && result.hash) {
@@ -480,7 +484,7 @@ export default function Home() {
               className="hover:text-cyan-400 transition-colors flex items-center gap-1"
             >
               <span>Stellar Horizon Testnet</span>
-              <ExternalLink className="w-3 h-3" />
+              <ExternalLink className="w-3.5 h-3.5" />
             </a>
             <a
               href="https://www.freighter.app/"
@@ -489,7 +493,7 @@ export default function Home() {
               className="hover:text-cyan-400 transition-colors flex items-center gap-1"
             >
               <span>Freighter Wallet</span>
-              <ExternalLink className="w-3 h-3" />
+              <ExternalLink className="w-3.5 h-3.5" />
             </a>
             <a
               href="https://stellar.expert/explorer/testnet"
@@ -498,7 +502,7 @@ export default function Home() {
               className="hover:text-cyan-400 transition-colors flex items-center gap-1"
             >
               <span>Stellar Expert Explorer</span>
-              <ExternalLink className="w-3 h-3" />
+              <ExternalLink className="w-3.5 h-3.5" />
             </a>
           </div>
         </div>

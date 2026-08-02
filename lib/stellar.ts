@@ -18,6 +18,7 @@ import {
   rpc,
   nativeToScVal,
 } from "@stellar/stellar-sdk";
+import albedo from "@albedo-link/intent";
 import { TransactionRecord } from "@/components/TransactionHistory";
 
 export const HORIZON_TESTNET_URL = "https://horizon-testnet.stellar.org";
@@ -72,8 +73,8 @@ export function categorizeTransactionError(
     return {
       type: ErrorType.USER_REJECTION,
       title: "Error 1: Signature Request Cancelled",
-      message: "You rejected or closed the Freighter Wallet signature confirmation popup.",
-      solution: "Click 'Pay Premium' again and approve the signature prompt inside your Freighter Wallet.",
+      message: "You rejected or closed the wallet signature confirmation prompt.",
+      solution: "Click 'Pay Premium' again and approve the transaction signature prompt in your wallet.",
     };
   }
 
@@ -310,7 +311,8 @@ export async function payPolicyPremium(
   senderAddress: string,
   amountXlm: string,
   policyName: string,
-  demoSecretKey?: string
+  demoSecretKey?: string,
+  walletType?: "freighter" | "albedo" | "demo"
 ): Promise<{ success: boolean; hash?: string; error?: string; categorizedError?: CategorizedError }> {
   try {
     // Check balance first for Error Type 2 validation
@@ -397,8 +399,26 @@ export async function payPolicyPremium(
       const demoPair = Keypair.fromSecret(demoSecretKey);
       transaction.sign(demoPair);
       signedXdr = transaction.toXDR();
+    } else if (walletType === "albedo") {
+      // Use Albedo to sign the transaction signature request!
+      const xdr = transaction.toXDR();
+      try {
+        const albedoResult = await albedo.tx({
+          xdr,
+          network: "testnet",
+        });
+        signedXdr = albedoResult.signed_envelope_xdr;
+      } catch (signErr: any) {
+        console.error("Albedo signing error:", signErr);
+        const catErr = categorizeTransactionError(signErr);
+        return {
+          success: false,
+          error: catErr.message,
+          categorizedError: catErr,
+        };
+      }
     } else {
-      // Request signature from Freighter Wallet extension
+      // Request signature from Freighter Wallet extension (Default)
       const xdr = transaction.toXDR();
       let signedResult;
       try {
