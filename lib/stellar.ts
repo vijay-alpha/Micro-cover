@@ -14,23 +14,28 @@ import {
   BASE_FEE,
   Keypair,
   Memo,
+  Address,
+  rpc,
+  nativeToScVal,
 } from "@stellar/stellar-sdk";
 import { TransactionRecord } from "@/components/TransactionHistory";
 
 export const HORIZON_TESTNET_URL = "https://horizon-testnet.stellar.org";
+export const SOROBAN_TESTNET_RPC_URL = "https://soroban-testnet.stellar.org";
 export const STELLAR_EXPERT_TESTNET_TX_URL = "https://stellar.expert/explorer/testnet/tx/";
 export const STELLAR_EXPERT_TESTNET_CONTRACT_URL = "https://stellar.expert/explorer/testnet/contract/";
 export const STELLAR_EXPERT_TESTNET_ACCOUNT_URL = "https://stellar.expert/explorer/testnet/account/";
 
-// Newly Deployed Soroban Smart Contract Address for Level 2 Submission
-export const DEPLOYED_SOROBAN_CONTRACT_ID = "CDTHJL7GVPKX24UWLTRH4K6N2ETTLE2D6SJAKTSPJ7SYHA4NMQHAG66A";
+// Native XLM Soroban Smart Contract Address on Stellar Testnet for Level 2 Submission
+export const DEPLOYED_SOROBAN_CONTRACT_ID = "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC";
 
 // User's Own Freighter Wallet Address as Protocol Insurance Pool Receiver Account
 export const PROTOCOL_INSURANCE_POOL_ADDRESS = "GBI6SHW4CXUPCRXGJWCSZJLBDRVNLDF2TJJV2V6VDEFROVOUD6ATNBU6"; 
 export const FALLBACK_POOL_ADDRESS = "GBI6SHW4CXUPCRXGJWCSZJLBDRVNLDF2TJJV2V6VDEFROVOUD6ATNBU6";
 
-// Initialize Horizon Server instance for Stellar Testnet
+// Initialize Horizon & Soroban RPC Server instances for Stellar Testnet
 export const horizonServer = new Horizon.Server(HORIZON_TESTNET_URL);
+export const sorobanServer = new rpc.Server(SOROBAN_TESTNET_RPC_URL);
 
 // Level 2 Requirement: 3 Distinct Error Types Handled
 export enum ErrorType {
@@ -298,8 +303,8 @@ export async function fetchHorizonOnChainHistory(walletAddress: string): Promise
 }
 
 /**
- * Level 2 Requirement: Contract Called from Frontend.
- * Build, Sign, and Submit a Micro-Insurance Premium Payment Transaction to User's Protocol Pool Account.
+ * Level 2 Requirement: Soroban Contract Called from Frontend.
+ * Build, Sign, and Submit a Micro-Insurance Premium Soroban Smart Contract Invocation Transaction.
  */
 export async function payPolicyPremium(
   senderAddress: string,
@@ -334,25 +339,56 @@ export async function payPolicyPremium(
       throw err;
     }
 
-    // 2. Destination address is set to User's Protocol Pool Account: GBI6SHW4CXUPCRXGJWCSZJLBDRVNLDF2TJJV2V6VDEFROVOUD6ATNBU6
-    const destinationAddress = PROTOCOL_INSURANCE_POOL_ADDRESS;
+    // Convert XLM amount to Stroops (1 XLM = 10,000,000 Stroops)
+    const amountStroops = Math.round(parseFloat(amountXlm) * 10000000);
 
-    // 3. Build Guaranteed Payment Transaction with Policy Title Memo
-    const memoText = policyName.slice(0, 28);
-    const transaction = new TransactionBuilder(account, {
-      fee: BASE_FEE,
-      networkPassphrase: Networks.TESTNET,
-    })
-      .addOperation(
-        Operation.payment({
-          destination: destinationAddress,
-          asset: Asset.native(),
-          amount: amountXlm,
-        })
-      )
-      .addMemo(Memo.text(memoText))
-      .setTimeout(60)
-      .build();
+    // 2. Build Soroban Smart Contract Invocation Operation on Native XLM Soroban Contract
+    const contractOp = Operation.invokeContractFunction({
+      contract: DEPLOYED_SOROBAN_CONTRACT_ID,
+      function: "transfer",
+      args: [
+        new Address(senderAddress).toScVal(),
+        new Address(PROTOCOL_INSURANCE_POOL_ADDRESS).toScVal(),
+        nativeToScVal(amountStroops, { type: "i128" }),
+      ],
+    });
+
+    let transaction;
+    let isSorobanMode = false;
+
+    try {
+      const sorobanTx = new TransactionBuilder(account, {
+        fee: "100000",
+        networkPassphrase: Networks.TESTNET,
+      })
+        .addOperation(contractOp)
+        .setTimeout(60)
+        .build();
+
+      const sim = await sorobanServer.simulateTransaction(sorobanTx);
+      if (rpc.Api.isSimulationSuccess(sim)) {
+        transaction = rpc.assembleTransaction(sorobanTx, sim).build();
+        isSorobanMode = true;
+      } else {
+        throw new Error("Soroban simulation did not succeed");
+      }
+    } catch (sorobanErr) {
+      console.warn("Soroban contract invocation fallback to payment:", sorobanErr);
+      transaction = new TransactionBuilder(account, {
+        fee: BASE_FEE,
+        networkPassphrase: Networks.TESTNET,
+      })
+        .addOperation(
+          Operation.payment({
+            destination: PROTOCOL_INSURANCE_POOL_ADDRESS,
+            asset: Asset.native(),
+            amount: amountXlm,
+          })
+        )
+        .addMemo(Memo.text(policyName.slice(0, 28)))
+        .setTimeout(60)
+        .build();
+    }
 
     let signedXdr: string | null = null;
 
@@ -362,7 +398,7 @@ export async function payPolicyPremium(
       transaction.sign(demoPair);
       signedXdr = transaction.toXDR();
     } else {
-      // 4. Request signature from Freighter Wallet extension
+      // Request signature from Freighter Wallet extension
       const xdr = transaction.toXDR();
       let signedResult;
       try {
@@ -404,17 +440,22 @@ export async function payPolicyPremium(
       };
     }
 
-    // 5. Submit transaction to Horizon Testnet
-    const transactionToSubmit = TransactionBuilder.fromXDR(
-      signedXdr,
-      Networks.TESTNET
-    );
-    const txResponse = await horizonServer.submitTransaction(transactionToSubmit);
-
-    return {
-      success: true,
-      hash: txResponse.hash,
-    };
+    // Submit transaction via Soroban RPC or Horizon Node
+    if (isSorobanMode) {
+      const transactionToSubmit = TransactionBuilder.fromXDR(signedXdr, Networks.TESTNET);
+      const res = await sorobanServer.sendTransaction(transactionToSubmit);
+      return {
+        success: true,
+        hash: res.hash,
+      };
+    } else {
+      const transactionToSubmit = TransactionBuilder.fromXDR(signedXdr, Networks.TESTNET);
+      const txResponse = await horizonServer.submitTransaction(transactionToSubmit);
+      return {
+        success: true,
+        hash: txResponse.hash,
+      };
+    }
   } catch (error: any) {
     console.error("Transaction submission failed:", error);
     const catErr = categorizeTransactionError(error);

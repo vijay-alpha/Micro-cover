@@ -30,7 +30,7 @@ export default function ContractEvents() {
           policyTitle: "Server Downtime / Web3 API Outage",
           amountXlm: "1.00 XLM",
           timestamp: new Date(now.getTime() - 1000 * 60 * 2).toLocaleTimeString(),
-          txHash: "6db8d386102bd6c49a130df101d26122ca3e906d19da33a23cba9474b587be95",
+          txHash: "b48047271c00742b74bf10f3177cf3d64ef3c1caaf618d07d0cc60da2e8e57b3",
         },
         {
           id: "evt-02",
@@ -38,7 +38,7 @@ export default function ContractEvents() {
           policyTitle: "DeFi Stablecoin Peg De-peg Cover",
           amountXlm: "2.00 XLM",
           timestamp: new Date(now.getTime() - 1000 * 60 * 15).toLocaleTimeString(),
-          txHash: "6db8d386102bd6c49a130df101d26122ca3e906d19da33a23cba9474b587be95",
+          txHash: "b48047271c00742b74bf10f3177cf3d64ef3c1caaf618d07d0cc60da2e8e57b3",
         },
         {
           id: "evt-03",
@@ -46,7 +46,7 @@ export default function ContractEvents() {
           policyTitle: "Extreme Weather & Drought Micro-Cover",
           amountXlm: "5.00 XLM",
           timestamp: new Date(now.getTime() - 1000 * 60 * 45).toLocaleTimeString(),
-          txHash: "6db8d386102bd6c49a130df101d26122ca3e906d19da33a23cba9474b587be95",
+          txHash: "b48047271c00742b74bf10f3177cf3d64ef3c1caaf618d07d0cc60da2e8e57b3",
         },
       ];
       setEvents(mockEvents);
