@@ -8,6 +8,43 @@ MicroCover is a decentralized parametric micro-insurance protocol built on the *
 
 ---
 
+## 🚀 How to Run Locally
+
+### Prerequisites
+- [Node.js](https://nodejs.org/) v18.0.0 or higher
+- [Freighter Wallet Browser Extension](https://www.freighter.app/) (set to **Testnet** mode)
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/vijay-alpha/Micro-cover.git
+cd Micro-cover
+```
+
+### 2. Install Dependencies
+```bash
+npm install
+```
+
+### 3. Run Automated Level 3 Test Suite (4 Passing Tests)
+```bash
+npm test
+```
+
+### 4. Start Development Server
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### 5. Production Build Verification
+```bash
+npm run build
+npm run start
+```
+
+---
+
 ## ⚪ Level 1 (White Belt Submission)
 
 ### 🌟 Key Features & Implementation
@@ -58,7 +95,7 @@ MicroCover is a decentralized parametric micro-insurance protocol built on the *
 - **Vercel Live Application**: [https://micro-cover.vercel.app/](https://micro-cover.vercel.app/)
 
 #### 1. Screenshot: Wallet Options Available
-<img width="1915" height="1033" alt="{3F59F23D-20D4-47A0-8180-B5B3153E901F}" src="https://github.com/user-attachments/assets/f24c040c-6a82-4348-a59d-8a0d1c201787" />
+<img width="1917" height="1039" alt="Wallet Options Available" src="https://github.com/user-attachments/assets/46ea8862-116d-47e2-812d-32f309fe3d48" />
 *Displays 2 distinct wallet options available in the dApp: 1. Freighter Wallet Extension, and 2. Albedo Web Delegate Wallet.*
 
 #### 2. Deployed Smart Contract Address (Stellar Testnet)
@@ -110,43 +147,6 @@ MicroCover is a decentralized parametric micro-insurance protocol built on the *
 #### 3. Test Output with 3+ Passing Tests
 <img width="1920" height="1034" alt="Test Output with 3+ Passing Tests" src="https://github.com/user-attachments/assets/0696B73D-601D-4912-BF44-AB462EC58768" />
 *Displays test execution output: 4/4 passed test suites verifying Horizon balance logic, 3 Level 2 Error Types, Soroban contract Stroop calculations, and oracle trigger threshold rules.*
-
----
-
-## 🚀 How to Run Locally
-
-### Prerequisites
-- [Node.js](https://nodejs.org/) v18.0.0 or higher
-- [Freighter Wallet Browser Extension](https://www.freighter.app/) (set to **Testnet** mode)
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/vijay-alpha/Micro-cover.git
-cd Micro-cover
-```
-
-### 2. Install Dependencies
-```bash
-npm install
-```
-
-### 3. Run Automated Level 3 Test Suite (4 Passing Tests)
-```bash
-npm test
-```
-
-### 4. Start Development Server
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-### 5. Production Build Verification
-```bash
-npm run build
-npm run start
-```
 
 ---
 
