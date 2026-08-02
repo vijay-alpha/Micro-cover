@@ -74,8 +74,20 @@ export default function WalletConnect({
     setIsConnecting(true);
     setErrorMsg(null);
     try {
+      // Load Albedo Web Intent SDK script dynamically if not present
+      if (typeof window !== "undefined" && !(window as any).albedo) {
+        await new Promise<void>((resolve, reject) => {
+          const script = document.createElement("script");
+          script.src = "https://albedo.link/intent-script/albedo.js";
+          script.async = true;
+          script.onload = () => resolve();
+          script.onerror = () => reject(new Error("Could not load Albedo SDK. Please try again."));
+          document.body.appendChild(script);
+        });
+      }
+
       if (typeof window !== "undefined" && (window as any).albedo) {
-        const res = await (window as any).albedo.publicKey();
+        const res = await (window as any).albedo.publicKey({ network: "testnet" });
         if (res && res.pubkey) {
           localStorage.setItem("microcover_active_wallet", res.pubkey);
           localStorage.removeItem("microcover_user_disconnected");
@@ -83,12 +95,12 @@ export default function WalletConnect({
           setIsModalOpen(false);
           return;
         }
+      } else {
+        setErrorMsg("Albedo web intent provider unavailable.");
       }
-      window.open("https://albedo.link", "_blank");
-      setErrorMsg("Albedo web portal opened. Approve connection on albedo.link.");
     } catch (err: any) {
       console.error("Albedo connection error:", err);
-      setErrorMsg(err?.message || "Albedo connection failed.");
+      setErrorMsg(err?.message || "Albedo connection request was closed or canceled.");
     } finally {
       setIsConnecting(false);
     }
@@ -191,7 +203,7 @@ export default function WalletConnect({
         </AnimatePresence>
       </div>
 
-      {/* React Portal: Render Wallet Options Modal directly on document.body for 100% viewport centering on Vercel */}
+      {/* React Portal: Render Wallet Options Modal directly on document.body for 100% viewport centering */}
       {mounted &&
         createPortal(
           <AnimatePresence>
@@ -274,7 +286,11 @@ export default function WalletConnect({
                           <span className="text-xs text-slate-400">Web-based signature provider for Stellar</span>
                         </div>
                       </div>
-                      <CheckCircle2 className="w-5 h-5 text-purple-400/40 group-hover:text-purple-400 transition-colors" />
+                      {isConnecting ? (
+                        <Loader2 className="w-5 h-5 animate-spin text-purple-400" />
+                      ) : (
+                        <CheckCircle2 className="w-5 h-5 text-purple-400/40 group-hover:text-purple-400 transition-colors" />
+                      )}
                     </button>
                   </div>
 
