@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "node scripts/run_tests.js"
   },
   "dependencies": {
     "@stellar/freighter-api": "^6.0.1",

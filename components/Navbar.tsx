@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { Shield, Sparkles, Activity, Cpu, ExternalLink } from "lucide-react";
+import React, { useState } from "react";
+import { Shield, Sparkles, Activity, Cpu, ExternalLink, Menu, X } from "lucide-react";
 import WalletConnect from "./WalletConnect";
 import { DEPLOYED_SOROBAN_CONTRACT_ID, STELLAR_EXPERT_TESTNET_CONTRACT_URL } from "@/lib/stellar";
 
@@ -16,8 +16,10 @@ export default function Navbar({
   onConnect,
   onDisconnect,
 }: NavbarProps) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   return (
-    <header className="sticky top-0 z-40 w-full px-4 sm:px-8 py-4 backdrop-blur-xl bg-slate-950/60 border-b border-white/10 shadow-2xl">
+    <header className="sticky top-0 z-40 w-full px-4 sm:px-8 py-4 backdrop-blur-xl bg-slate-950/80 border-b border-white/10 shadow-2xl">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Brand Logo & Name */}
         <div className="flex items-center gap-3">
@@ -70,13 +72,51 @@ export default function Navbar({
           </div>
         </div>
 
-        {/* Right: Wallet Connect CTA */}
-        <WalletConnect
-          walletAddress={walletAddress}
-          onConnect={onConnect}
-          onDisconnect={onDisconnect}
-        />
+        {/* Right: Wallet Connect & Mobile Menu Trigger */}
+        <div className="flex items-center gap-3">
+          <WalletConnect
+            walletAddress={walletAddress}
+            onConnect={onConnect}
+            onDisconnect={onDisconnect}
+          />
+
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="lg:hidden p-2.5 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 transition-colors"
+            aria-label="Toggle Navigation Menu"
+          >
+            {isMobileMenuOpen ? <X className="w-5 h-5 text-cyan-400" /> : <Menu className="w-5 h-5 text-slate-300" />}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile Drawer Menu */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden mt-4 pt-4 border-t border-white/10 space-y-3 px-2">
+          <a
+            href={`${STELLAR_EXPERT_TESTNET_CONTRACT_URL}${DEPLOYED_SOROBAN_CONTRACT_ID}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between p-3 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-mono"
+          >
+            <div className="flex items-center gap-2">
+              <Cpu className="w-4 h-4 text-purple-400" />
+              <span>Soroban Contract ({DEPLOYED_SOROBAN_CONTRACT_ID.slice(0, 6)}...)</span>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 text-purple-400" />
+          </a>
+
+          <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-900 border border-white/10 text-xs">
+            <span className="text-slate-300 font-mono flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+              Stellar Testnet
+            </span>
+            <span className="text-emerald-400 font-semibold flex items-center gap-1">
+              <Activity className="w-3 h-3 animate-pulse" /> Horizon Online
+            </span>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

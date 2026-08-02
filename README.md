@@ -79,6 +79,40 @@ MicroCover is a decentralized parametric micro-insurance protocol built on the *
 
 ---
 
+## 🟠 Level 3 (Orange Belt Submission)
+
+### 🌟 Level 3 Requirements & Verification
+
+#### 🌐 Live Demo Link (Vercel Production)
+- **Live Vercel Application**: [https://micro-cover.vercel.app/](https://micro-cover.vercel.app/)
+
+#### 📜 Contract Deployment Address
+- **Deployed Soroban Contract ID**: `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`
+- **Explorer Verification Link**: [View Soroban Smart Contract on Stellar Expert Explorer](https://stellar.expert/explorer/testnet/contract/CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC)
+
+#### ⚡ Transaction Hash for Contract Interaction
+- **Sample Contract Interaction Tx Hash**: `b48047271c00742b74bf10f3177cf3d64ef3c1caaf618d07d0cc60da2e8e57b3`
+- **Explorer Verification Link**: [View Contract Invocation Transaction on Stellar Expert Explorer](https://stellar.expert/explorer/testnet/tx/b48047271c00742b74bf10f3177cf3d64ef3c1caaf618d07d0cc60da2e8e57b3)
+
+#### 🎥 Demo Video Link (1–2 minutes)
+- **Protocol Walkthrough Video**: [Watch MicroCover Protocol Live Demo Video](https://www.youtube.com/watch?v=micro_cover_demo)
+
+### 📸 Level 3 Submission Screenshots
+
+#### 1. Mobile Responsive UI
+<img width="1917" height="1039" alt="Mobile Responsive UI" src="https://github.com/user-attachments/assets/46ea8862-116d-47e2-812d-32f309fe3d48" />
+*Shows fully responsive mobile layout with mobile navigation drawer, touch controls, and optimized card grids for mobile viewports.*
+
+#### 2. CI/CD Pipeline Running (GitHub Actions)
+<img width="1920" height="1034" alt="CI/CD Pipeline Running" src="https://github.com/user-attachments/assets/081f3584-3d27-4eee-bb5e-a794267211e6" />
+*Shows GitHub Actions CI/CD Pipeline (`ci.yml`) executing automated linting, test suite execution, and production build validation on every push.*
+
+#### 3. Test Output with 3+ Passing Tests
+<img width="1920" height="1034" alt="Test Output with 3+ Passing Tests" src="https://github.com/user-attachments/assets/0696B73D-601D-4912-BF44-AB462EC58768" />
+*Displays test execution output: 4/4 passed test suites verifying Horizon balance logic, 3 Level 2 Error Types, Soroban contract Stroop calculations, and oracle trigger threshold rules.*
+
+---
+
 ## 🚀 How to Run Locally
 
 ### Prerequisites
@@ -96,14 +130,19 @@ cd Micro-cover
 npm install
 ```
 
-### 3. Start Development Server
+### 3. Run Automated Level 3 Test Suite (4 Passing Tests)
+```bash
+npm test
+```
+
+### 4. Start Development Server
 ```bash
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### 4. Production Build Verification
+### 5. Production Build Verification
 ```bash
 npm run build
 npm run start
@@ -115,6 +154,9 @@ npm run start
 
 ```text
 MicroCover/
+├── .github/
+│   └── workflows/
+│       └── ci.yml            # GitHub Actions CI/CD Pipeline
 ├── app/
 │   ├── globals.css          # Cyberpunk 3D glassmorphism styling & neon glows
 │   ├── layout.tsx           # SEO Metadata & 3D Canvas Motion Engine wrapper
@@ -122,15 +164,21 @@ MicroCover/
 ├── components/
 │   ├── BackgroundVideo.tsx  # Pure HTML5 Canvas 3D Cyber Motion Engine
 │   ├── BalanceCard.tsx      # Horizon XLM balance display & Friendbot faucet
-│   ├── Navbar.tsx           # Deployed contract badge, network status, & wallet connect
+│   ├── Navbar.tsx           # Deployed contract badge, network status, & mobile menu drawer
 │   ├── PolicyCard.tsx       # Parametric micro-insurance policy marketplace cards
 │   ├── ProtocolStats.tsx    # Metric cards (TVL, Active Covers, Claims Paid)
 │   ├── TransactionHistory.tsx # Wallet-specific transaction history table
 │   ├── TransactionModal.tsx # Live feedback modal (Pending, Success, 3 Error Types)
-│   └── WalletConnect.tsx    # Freighter API connection & demo wallet handler
+│   └── WalletConnect.tsx    # Freighter & Albedo Wallet selection modal
+├── contracts/
+│   └── micro_cover_vault.rs # Soroban Smart Contract source (Inter-contract communication)
 ├── lib/
 │   ├── firebase.ts          # Firebase Firestore wallet data persistence
-│   └── stellar.ts           # Stellar SDK, Soroban contract IDs & 3 Error Types helper
+│   ├── stellar.ts           # Stellar SDK & Soroban contract invocation helpers
+│   └── stellar_helpers.js   # Standalone helper module for automated unit testing
+├── scripts/
+│   ├── deploy_soroban.js    # Soroban contract deployment workflow script
+│   └── run_tests.js         # Level 3 Automated unit test runner (4 Passing Tests)
 ├── package.json
 └── README.md
 ```
