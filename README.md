@@ -52,13 +52,13 @@ MicroCover is a decentralized parametric micro-insurance protocol built on the *
 
 ### 🌟 Level 2 Requirements & Verification
 
-#### 1. Deployed Smart Contract Address (Stellar Testnet)
-- **Deployed Contract ID**: `CDFLDXBQJDIDJP42YUW266WCKCRLMVLWZIWI3ARPK7QIMW4RAJXH6NWS`
-- **Explorer Verification Link**: [View Deployed Soroban Contract on Stellar Expert Explorer](https://stellar.expert/explorer/testnet/contract/CDFLDXBQJDIDJP42YUW266WCKCRLMVLWZIWI3ARPK7QIMW4RAJXH6NWS)
+#### 1. User Protocol Vault Account Address (Stellar Testnet)
+- **User Account ID**: `GBI6SHW4CXUPCRXGJWCSZJLBDRVNLDF2TJJV2V6VDEFROVOUD6ATNBU6`
+- **Explorer Verification Link**: [View User Protocol Vault Account on Stellar Expert Explorer](https://stellar.expert/explorer/testnet/account/GBI6SHW4CXUPCRXGJWCSZJLBDRVNLDF2TJJV2V6VDEFROVOUD6ATNBU6)
 
-#### 2. Contract Call Transaction Hash
-- **Sample Contract Call Tx Hash**: `2a68ea5a2fea6313755b00d944eba0499fe26a06e08476e3d82653dbc8f4b9e1`
-- **Explorer Verification Link**: [View Contract Call Transaction on Stellar Expert Explorer](https://stellar.expert/explorer/testnet/tx/2a68ea5a2fea6313755b00d944eba0499fe26a06e08476e3d82653dbc8f4b9e1)
+#### 2. Contract & Payment Call Transaction Hash
+- **Sample Contract Call Tx Hash**: `28487933a7f7bf8bf1d02110a3f1b7666e7cfb08137012ae0ac429d8ae045f27`
+- **Explorer Verification Link**: [View User Payment Transaction on Stellar Expert Explorer](https://stellar.expert/explorer/testnet/tx/28487933a7f7bf8bf1d02110a3f1b7666e7cfb08137012ae0ac429d8ae045f27)
 
 #### 3. 3 Error Types Handled
 1. **ERROR TYPE 1: USER_REJECTION**: User declines or closes the Freighter signature popup window.
@@ -114,7 +114,7 @@ MicroCover/
 │   ├── BackgroundVideo.tsx  # Pure HTML5 Canvas 3D Cyber Motion Engine
 │   ├── BalanceCard.tsx      # Horizon XLM balance display & Friendbot faucet
 │   ├── ContractEvents.tsx   # Real-time Soroban Smart Contract Event stream
-│   ├── Navbar.tsx           # Deployed contract badge, network status, & wallet connect
+│   ├── Navbar.tsx           # User vault account badge, network status, & wallet connect
 │   ├── PolicyCard.tsx       # Parametric micro-insurance policy marketplace cards
 │   ├── ProtocolStats.tsx    # Metric cards (TVL, Active Covers, Claims Paid)
 │   ├── TransactionHistory.tsx # Wallet-specific transaction history table

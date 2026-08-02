@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Activity, Cpu, ExternalLink, Zap, ShieldCheck, RefreshCw } from "lucide-react";
-import { DEPLOYED_SOROBAN_CONTRACT_ID, STELLAR_EXPERT_TESTNET_CONTRACT_URL } from "@/lib/stellar";
+import { Activity, Cpu, ExternalLink, Zap, RefreshCw } from "lucide-react";
+import { PROTOCOL_INSURANCE_POOL_ADDRESS, STELLAR_EXPERT_TESTNET_ACCOUNT_URL } from "@/lib/stellar";
 
 export interface ContractEventItem {
   id: string;
@@ -30,7 +30,7 @@ export default function ContractEvents() {
           policyTitle: "Server Downtime / Web3 API Outage",
           amountXlm: "1.00 XLM",
           timestamp: new Date(now.getTime() - 1000 * 60 * 2).toLocaleTimeString(),
-          txHash: "46b846a29e4d0092bf0c23948dd8c10923485749204958273948572948dd8c",
+          txHash: "28487933a7f7bf8bf1d02110a3f1b7666e7cfb08137012ae0ac429d8ae045f27",
         },
         {
           id: "evt-02",
@@ -38,15 +38,15 @@ export default function ContractEvents() {
           policyTitle: "DeFi Stablecoin Peg De-peg Cover",
           amountXlm: "2.00 XLM",
           timestamp: new Date(now.getTime() - 1000 * 60 * 15).toLocaleTimeString(),
-          txHash: "45e91e4a3827495827495827394857294857294857294857294857434787",
+          txHash: "28487933a7f7bf8bf1d02110a3f1b7666e7cfb08137012ae0ac429d8ae045f27",
         },
         {
           id: "evt-03",
           topic: "soroban::claim_settled_payout",
           policyTitle: "Extreme Weather & Drought Micro-Cover",
-          amountXlm: "600.00 XLM",
+          amountXlm: "5.00 XLM",
           timestamp: new Date(now.getTime() - 1000 * 60 * 45).toLocaleTimeString(),
-          txHash: "197efd75857294857294857294857294857294857294857294857558579",
+          txHash: "28487933a7f7bf8bf1d02110a3f1b7666e7cfb08137012ae0ac429d8ae045f27",
         },
       ];
       setEvents(mockEvents);
@@ -85,12 +85,12 @@ export default function ContractEvents() {
           </button>
 
           <a
-            href={`${STELLAR_EXPERT_TESTNET_CONTRACT_URL}${DEPLOYED_SOROBAN_CONTRACT_ID}`}
+            href={`${STELLAR_EXPERT_TESTNET_ACCOUNT_URL}${PROTOCOL_INSURANCE_POOL_ADDRESS}`}
             target="_blank"
             rel="noopener noreferrer"
             className="px-3 py-2 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 font-mono text-xs font-bold transition-all flex items-center gap-1.5"
           >
-            <span>Contract: {DEPLOYED_SOROBAN_CONTRACT_ID.slice(0, 6)}...{DEPLOYED_SOROBAN_CONTRACT_ID.slice(-4)}</span>
+            <span>User Pool: {PROTOCOL_INSURANCE_POOL_ADDRESS.slice(0, 6)}...{PROTOCOL_INSURANCE_POOL_ADDRESS.slice(-4)}</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
         </div>

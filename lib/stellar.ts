@@ -20,6 +20,7 @@ import { TransactionRecord } from "@/components/TransactionHistory";
 export const HORIZON_TESTNET_URL = "https://horizon-testnet.stellar.org";
 export const STELLAR_EXPERT_TESTNET_TX_URL = "https://stellar.expert/explorer/testnet/tx/";
 export const STELLAR_EXPERT_TESTNET_CONTRACT_URL = "https://stellar.expert/explorer/testnet/contract/";
+export const STELLAR_EXPERT_TESTNET_ACCOUNT_URL = "https://stellar.expert/explorer/testnet/account/";
 
 // Live Deployed Soroban Smart Contract Address indexed on Stellar Expert Testnet
 export const DEPLOYED_SOROBAN_CONTRACT_ID = "CDFLDXBQJDIDJP42YUW266WCKCRLMVLWZIWI3ARPK7QIMW4RAJXH6NWS";
