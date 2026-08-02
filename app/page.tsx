@@ -252,22 +252,6 @@ export default function Home() {
               <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl font-normal">
                 MicroCover automatically settles micro-insurance claims on the Stellar blockchain. Protect your Web3 RPC infrastructure, stablecoin pegs, and real-world assets with zero paperwork and instant Horizon payouts.
               </p>
-
-              {/* Feature Pills */}
-              <div className="flex flex-wrap items-center gap-3 pt-2">
-                <div className="px-3.5 py-2 rounded-xl bg-slate-900/80 border border-white/10 text-xs font-semibold text-slate-200 flex items-center gap-2 shadow-sm">
-                  <CheckCircle className="w-4 h-4 text-emerald-400" />
-                  <span>Freighter Wallet Native</span>
-                </div>
-                <div className="px-3.5 py-2 rounded-xl bg-slate-900/80 border border-white/10 text-xs font-semibold text-slate-200 flex items-center gap-2 shadow-sm">
-                  <Cpu className="w-4 h-4 text-purple-400" />
-                  <span>Soroban Smart Contract</span>
-                </div>
-                <div className="px-3.5 py-2 rounded-xl bg-slate-900/80 border border-white/10 text-xs font-semibold text-slate-200 flex items-center gap-2 shadow-sm">
-                  <CheckCircle className="w-4 h-4 text-cyan-400" />
-                  <span>3 Error Types Handled</span>
-                </div>
-              </div>
             </div>
 
             {/* Right Hero Graphic Card */}
